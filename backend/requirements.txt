@@ -8,4 +8,5 @@ sqlalchemy
 fastapi
 pydantic
 uvicorn[standard]
-
+psycopg2
+python-dotenv

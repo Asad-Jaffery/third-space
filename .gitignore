@@ -4,3 +4,7 @@ node_modules/
 *.log
 .env*.local
 .env
+
+__pycache__/
+*.pyc
+*.pyo
