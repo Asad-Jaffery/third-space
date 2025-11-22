@@ -26,7 +26,7 @@ export default function Home() {
             Discover and explore third places in your community.
           </p>
           
-          <Link href="/spaces/volunteer-park">
+          <Link href="/pages">
             <button className="bg-[#c8d5b9] text-[#2d2d2d] px-8 py-4 rounded-lg text-lg font-semibold hover:bg-[#b8c5a9] transition-colors">
               View Volunteer Park
             </button>
