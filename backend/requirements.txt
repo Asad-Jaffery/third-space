@@ -1,0 +1,12 @@
+supabase
+gotrue
+postgrest
+storage3
+typing
+
+sqlalchemy
+fastapi
+pydantic
+uvicorn[standard]
+psycopg2
+python-dotenv

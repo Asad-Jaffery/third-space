@@ -3,3 +3,8 @@ node_modules/
 .DS_Store
 *.log
 .env*.local
+.env
+
+__pycache__/
+*.pyc
+*.pyo
