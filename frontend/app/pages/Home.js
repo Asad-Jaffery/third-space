@@ -1,11 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+const getApiBase = () => {
+  const raw =
+    (process.env.NEXT_PUBLIC_API_URL || "").trim() ||
+    "https://third-space.onrender.com";
+  if (raw.startsWith("http://") || raw.startsWith("https://")) return raw;
+  // if user sets domain without protocol, default to https
+  return `https://${raw.replace(/^\/+/, "")}`;
+};
 
 export default function ThyrdSpacesHome() {
+  const API_BASE = getApiBase();
   const [keyword, setKeyword] = useState("");
   const [category, setCategory] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [submitSuccess, setSubmitSuccess] = useState("");
+
+  // Wake backend to avoid first-request cold start
+  useEffect(() => {
+    const wakeServer = async () => {
+      try {
+        await fetch(`${API_BASE}/`, { method: "GET" });
+      } catch {
+        // ignore; this is just a warm-up call
+      }
+    };
+    wakeServer();
+  }, [API_BASE]);
 
   const categories = [
     "All",
@@ -51,19 +76,60 @@ export default function ThyrdSpacesHome() {
 
   const handleSubmitThirdSpace = (e) => {
     e.preventDefault();
+    setSubmitError("");
+    setSubmitSuccess("");
+    setIsSubmitting(true);
 
-    // replace this with your real submit (Supabase/API/etc)
-    console.log({
-      name: formName,
-      tags: formTags,
-      description: formDesc,
-      photo: formPhoto,
-      altText: formAlt,
-      location: formLocation,
-    });
+    const fileToBase64 = (file) =>
+      new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
 
-    resetForm();
-    setIsModalOpen(false);
+    const submit = async () => {
+      try {
+        const photoString = formPhoto ? await fileToBase64(formPhoto) : "";
+
+        const payload = {
+          name: formName.trim(),
+          description: formDesc.trim(),
+          tags: formTags.join(", "),
+          photo_url: photoString,
+          location_data: formLocation.trim(),
+        };
+
+        const res = await fetch(`${API_BASE}/third_space/new`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          mode: "cors",
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(errText || `Request failed with ${res.status}`);
+        }
+
+        setSubmitSuccess("Space saved!");
+        resetForm();
+        setIsModalOpen(false);
+      } catch (err) {
+        console.error("Submit third space failed:", err);
+        setSubmitError(
+          err?.message?.includes("Failed to fetch")
+            ? "Could not reach the server. Please retry in a moment (Render may be waking)."
+            : err.message || "Something went wrong while saving."
+        );
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
+
+    submit();
   };
 
   const mockResults = [
@@ -104,9 +170,11 @@ export default function ThyrdSpacesHome() {
   return (
     <div className="min-h-screen bg-[#3a3a3a]">
       {/* Header */}
-      <header className="bg-[#c8d5b9] px-6 py-4 flex items-center justify-between">
+      <header className="bg-[#c8d5b9] px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold text-[#2d2d2d]">Thyrd Spaces</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-[#2d2d2d]">
+            Thyrd Spaces
+          </h1>
         </div>
         <button className="text-[#2d2d2d]">
           <svg
@@ -122,26 +190,26 @@ export default function ThyrdSpacesHome() {
       </header>
 
       {/* Main Content */}
-      <main className="bg-white max-w-4xl mx-auto min-h-screen">
+      <main className="bg-white max-w-md mx-auto min-h-screen px-4 pt-5 shadow-sm">
         {/* intro Section */}
-        <div className="bg-[#d4d4d4] px-6 py-8 text-center">
-          <h2 className="text-4xl font-bold text-[#2d2d2d] mb-4">
+        <div className="bg-[#d4d4d4] px-4 sm:px-5 py-6 sm:py-8 text-center rounded-lg shadow-sm">
+          <h2 className="text-2xl sm:text-3xl font-bold text-[#2d2d2d] mb-2 sm:mb-3 leading-tight">
             Welcome to Thyrd Spaces
           </h2>
-          <p className="text-lg text-[#4a4a4a] mb-6 leading-relaxed">
+          <p className="text-sm sm:text-base text-[#4a4a4a] mb-4 sm:mb-5 leading-relaxed">
             Thyrd spaces is a website that facilitates community-spread findings
             of third spaces!
             <br />
             Come explore third places in Seattle and read more about our
             initiative!
           </p>
-          <div className="flex justify-center gap-4">
-            <button className="px-6 py-2 bg-[#2d2d2d] text-white rounded">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-3">
+            <button className="w-full sm:w-auto px-5 py-2.5 bg-[#2d2d2d] text-white rounded-md text-sm sm:text-base">
               About Thyrd Spaces
             </button>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="px-6 py-2 bg-white text-[#2d2d2d] rounded border border-[#2d2d2d] transition-colors duration-150 hover:bg-[#1f2a1f] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#1f2a1f]"
+              className="w-full sm:w-auto px-5 py-2.5 bg-white text-[#2d2d2d] rounded-md border border-[#2d2d2d] transition-colors duration-150 hover:bg-[#1f2a1f] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#1f2a1f] text-sm sm:text-base"
             >
               Add a Third Space
             </button>
@@ -149,8 +217,8 @@ export default function ThyrdSpacesHome() {
         </div>
 
         {/* Search Section */}
-        <div className="px-6 py-6">
-          <h3 className="text-2xl font-bold text-[#2d2d2d] mb-4">
+        <div className="px-0 py-6">
+          <h3 className="text-xl sm:text-2xl font-bold text-[#2d2d2d] mb-4">
             Search for Third Spaces
           </h3>
 
@@ -190,7 +258,7 @@ export default function ThyrdSpacesHome() {
 
             <button
               onClick={handleSearch}
-              className="px-8 py-2 bg-[#2d2d2d] text-white rounded"
+              className="px-8 py-2 bg-[#2d2d2d] text-white rounded-md"
             >
               Search
             </button>
@@ -198,8 +266,8 @@ export default function ThyrdSpacesHome() {
         </div>
 
         {/* Search Results */}
-        <div className="px-6 py-6">
-          <h3 className="text-2xl font-bold text-[#2d2d2d] mb-4">
+        <div className="px-0 py-6">
+          <h3 className="text-xl sm:text-2xl font-bold text-[#2d2d2d] mb-4">
             Search Results
           </h3>
 
@@ -207,13 +275,13 @@ export default function ThyrdSpacesHome() {
             {mockResults.map((result) => (
               <div
                 key={result.id}
-                className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
+                className="bg-white border border-gray-200 rounded-md p-4 shadow-sm"
               >
                 <div className="flex items-start justify-between mb-2">
                   <h4 className="text-xl font-bold text-[#2d2d2d]">
                     {result.name}
                   </h4>
-                  <span className="px-3 py-1 bg-[#f5e6e6] text-[#6b4444] rounded-full text-sm border border-[#6b4444]">
+                  <span className="px-3 py-1 bg-[#f5e6e6] text-[#6b4444] rounded-md text-sm border border-[#6b4444]">
                     {result.category}
                   </span>
                 </div>
@@ -231,23 +299,23 @@ export default function ThyrdSpacesHome() {
           <div className="py-6 flex items-center justify-center gap-2">
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              className="px-4 py-2 bg-white border border-gray-300 rounded"
+              className="px-4 py-2 bg-white border border-gray-300 rounded-md"
             >
               Previous
             </button>
-            <button className="w-10 h-10 flex items-center justify-center bg-[#2d2d2d] text-white rounded">
+            <button className="w-10 h-10 flex items-center justify-center bg-[#2d2d2d] text-white rounded-md">
               {currentPage}
             </button>
-            <button className="w-10 h-10 flex items-center justify-center bg-white border border-gray-300 rounded">
+            <button className="w-10 h-10 flex items-center justify-center bg-white border border-gray-300 rounded-md">
               2
             </button>
             <span>...</span>
-            <button className="w-10 h-10 flex items-center justify-center bg-white border border-gray-300 rounded">
+            <button className="w-10 h-10 flex items-center justify-center bg-white border border-gray-300 rounded-md">
               68
             </button>
             <button
               onClick={() => setCurrentPage(Math.min(68, currentPage + 1))}
-              className="px-4 py-2 bg-white border border-gray-300 rounded"
+              className="px-4 py-2 bg-white border border-gray-300 rounded-md"
             >
               Next
             </button>
@@ -291,7 +359,7 @@ export default function ThyrdSpacesHome() {
 
           {/* modal box */}
           <div
-            className="relative z-10 w-[92%] max-w-md rounded-2xl bg-white shadow-xl overflow-hidden"
+            className="relative z-10 w-[92%] max-w-md rounded-lg bg-white shadow-xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {/* header */}
@@ -310,6 +378,16 @@ export default function ThyrdSpacesHome() {
 
             <form onSubmit={handleSubmitThirdSpace} className="p-5 space-y-4">
               <p className="text-sm text-[#111] font-medium">All fields required.</p>
+              {submitError && (
+                <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2">
+                  {submitError}
+                </p>
+              )}
+              {submitSuccess && (
+                <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded px-3 py-2">
+                  {submitSuccess}
+                </p>
+              )}
 
               {/* Third Space Name */}
               <div>
@@ -434,9 +512,10 @@ export default function ThyrdSpacesHome() {
               {/* Add button */}
               <button
                 type="submit"
-                className="w-full mt-2 bg-[#1f2a1f] text-white font-semibold py-2.5 rounded-md"
+                className="w-full mt-2 bg-[#1f2a1f] text-white font-semibold py-2.5 rounded-md disabled:opacity-60 disabled:cursor-not-allowed"
+                disabled={isSubmitting}
               >
-                Add
+                {isSubmitting ? "Saving..." : "Add"}
               </button>
             </form>
           </div>
