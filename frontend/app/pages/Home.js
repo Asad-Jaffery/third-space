@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import SiteHeader from "../components/SiteHeader";
+import SiteFooter from "../components/SiteFooter";
 
 const getApiBase = () => {
   const raw =
@@ -139,13 +141,17 @@ export default function ThyrdSpacesHome() {
       description: "This park is lovely, open to the public...",
       category: "park",
       views: 1234,
+      tags: ["park", "views"],
+      image: "",
     },
     {
       id: 2,
       name: "Altar at Udistrict",
       description: "Cozy neighborhood Altar with great vibes...",
-      category: "Altar",
+      category: "altar",
       views: 892,
+      tags: ["altar"],
+      image: "",
     },
     {
       id: 3,
@@ -153,6 +159,8 @@ export default function ThyrdSpacesHome() {
       description: "Community library with study spaces...",
       category: "library",
       views: 567,
+      tags: ["library"],
+      image: "",
     },
     {
       id: 4,
@@ -160,6 +168,8 @@ export default function ThyrdSpacesHome() {
       description: "Beautiful lakeside park for walking...",
       category: "park",
       views: 2341,
+      tags: ["park"],
+      image: "",
     },
   ];
 
@@ -168,185 +178,189 @@ export default function ThyrdSpacesHome() {
   };
 
   return (
-    <div className="min-h-screen bg-[#3a3a3a]">
-      {/* Header */}
-      <header className="bg-[#c8d5b9] px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <h1 className="text-xl sm:text-2xl font-bold text-[#2d2d2d]">
-            Thyrd Spaces
-          </h1>
-        </div>
-        <button className="text-[#2d2d2d]">
-          <svg
-            className="w-8 h-8"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <path d="M3 12h18M3 6h18M3 18h18" />
-          </svg>
-        </button>
-      </header>
+    <div className="min-h-screen bg-[#1f1f1f]">
+      <SiteHeader />
 
       {/* Main Content */}
-      <main className="bg-white max-w-md mx-auto min-h-screen px-4 pt-5 shadow-sm">
+      <main className="bg-white max-w-md mx-auto min-h-screen px-4 pt-5 shadow-sm border border-gray-200">
         {/* intro Section */}
         <div className="bg-[#d4d4d4] px-4 sm:px-5 py-6 sm:py-8 text-center rounded-lg shadow-sm">
-          <h2 className="text-2xl sm:text-3xl font-bold text-[#2d2d2d] mb-2 sm:mb-3 leading-tight">
+          <h2 className="text-2xl sm:text-3xl font-bold text-[#1f1f1f] mb-2 sm:mb-3 leading-tight">
             Welcome to Thyrd Spaces
           </h2>
-          <p className="text-sm sm:text-base text-[#4a4a4a] mb-4 sm:mb-5 leading-relaxed">
+          <p className="text-sm sm:text-base text-[#2f2f2f] mb-4 sm:mb-5 leading-relaxed">
             Thyrd spaces is a website that facilitates community-spread findings
             of third spaces!
             <br />
             Come explore third places in Seattle and read more about our
             initiative!
           </p>
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-3">
-            <button className="w-full sm:w-auto px-5 py-2.5 bg-[#2d2d2d] text-white rounded-md text-sm sm:text-base">
+          <div className="flex justify-center">
+            <button className="w-full sm:w-auto px-6 py-3 bg-[#2d2d2d] text-white rounded-md text-sm sm:text-base">
               About Thyrd Spaces
-            </button>
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="w-full sm:w-auto px-5 py-2.5 bg-white text-[#2d2d2d] rounded-md border border-[#2d2d2d] transition-colors duration-150 hover:bg-[#1f2a1f] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#1f2a1f] text-sm sm:text-base"
-            >
-              Add a Third Space
             </button>
           </div>
         </div>
 
         {/* Search Section */}
-        <div className="px-0 py-6">
-          <h3 className="text-xl sm:text-2xl font-bold text-[#2d2d2d] mb-4">
+        <div className="px-0 py-6 bg-[#d4d4d4] mt-4 rounded-lg shadow-sm">
+          <h3 className="text-xl sm:text-2xl font-bold text-[#2d2d2d] mb-4 px-4">
             Search for Third Spaces
           </h3>
 
-          <div className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
+          <div className="space-y-4 px-4 pb-4">
+            <div className="space-y-3">
               <div>
                 <label className="block text-sm font-bold text-[#2d2d2d] mb-2">
                   Keyword
                 </label>
-                <input
-                  type="text"
-                  placeholder="Value"
-                  value={keyword}
-                  onChange={(e) => setKeyword(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Value"
+                    value={keyword}
+                    onChange={(e) => setKeyword(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white pr-10"
+                  />
+                  <span className="absolute inset-y-0 right-3 flex items-center text-gray-500">
+                    🔍
+                  </span>
+                </div>
               </div>
 
               <div>
                 <label className="block text-sm font-bold text-[#2d2d2d] mb-2">
                   Category
                 </label>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded bg-white"
-                >
-                  <option value="">Description Value</option>
-                  {categories.map((cat) => (
-                    <option key={cat} value={cat.toLowerCase()}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white appearance-none pr-8"
+                  >
+                    <option value="">Value</option>
+                    {categories.map((cat) => (
+                      <option key={cat} value={cat.toLowerCase()}>
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="absolute inset-y-0 right-3 flex items-center text-gray-500 pointer-events-none">
+                    ▾
+                  </span>
+                </div>
               </div>
             </div>
 
-            <button
-              onClick={handleSearch}
-              className="px-8 py-2 bg-[#2d2d2d] text-white rounded-md"
-            >
-              Search
-            </button>
+            <div className="flex justify-center">
+              <button
+                onClick={handleSearch}
+                className="px-8 py-2 bg-[#2d2d2d] text-white rounded-md w-40"
+              >
+                Search
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Search Results */}
         <div className="px-0 py-6">
-          <h3 className="text-xl sm:text-2xl font-bold text-[#2d2d2d] mb-4">
-            Search Results
-          </h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl sm:text-2xl font-bold text-[#2d2d2d]">
+              Search Results
+            </h3>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="px-4 py-2 bg-white border border-[#2d2d2d] text-[#2d2d2d] rounded-md text-sm shadow-sm flex items-center gap-2"
+            >
+              Add a Third Space <span className="text-lg leading-none">+</span>
+            </button>
+          </div>
 
           <div className="space-y-4">
             {mockResults.map((result) => (
               <div
                 key={result.id}
-                className="bg-white border border-gray-200 rounded-md p-4 shadow-sm"
+                className="bg-white border border-gray-200 rounded-md p-3 shadow-sm"
               >
                 <div className="flex items-start justify-between mb-2">
-                  <h4 className="text-xl font-bold text-[#2d2d2d]">
-                    {result.name}
-                  </h4>
-                  <span className="px-3 py-1 bg-[#f5e6e6] text-[#6b4444] rounded-md text-sm border border-[#6b4444]">
-                    {result.category}
-                  </span>
+                  <div>
+                    <h4 className="text-lg font-bold text-[#2d2d2d]">
+                      {result.name}
+                    </h4>
+                    <p className="text-sm text-[#4a4a4a] truncate max-w-[180px]">
+                      {result.description}
+                    </p>
+                  </div>
+                  <button className="text-[#2d2d2d]" aria-label="Favorite">
+                    <svg
+                      className="w-8 h-8"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                    </svg>
+                  </button>
                 </div>
-                <p className="text-sm text-[#4a4a4a] mb-3 leading-relaxed">
-                  {result.description}
-                </p>
-                <div className="flex items-center gap-2 text-sm text-[#6a6a6a]">
-                  <span>{result.views} views</span>
+                <div className="flex gap-2 mb-2">
+                  {(result.tags || []).map((tag, idx) => (
+                    <span
+                      key={tag}
+                      className={`px-3 py-1 rounded-md text-xs border ${
+                        idx % 2 === 0
+                          ? "bg-[#f5e6e6] text-[#6b4444] border-[#6b4444]"
+                          : "bg-[#e6f5e6] text-[#446b44] border-[#446b44]"
+                      }`}
+                    >
+                      {tag}
+                    </span>
+                  ))}
                 </div>
+                {result.image ? (
+                  <div className="w-full h-52 bg-gray-200 rounded-md overflow-hidden">
+                    <img
+                      src={result.image}
+                      alt={result.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ) : null}
               </div>
             ))}
           </div>
 
           {/* Pagination */}
-          <div className="py-6 flex items-center justify-center gap-2">
+          <div className="py-6 flex items-center justify-center gap-3 text-sm text-[#6a6a6a]">
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              className="px-4 py-2 bg-white border border-gray-300 rounded-md"
+              className="flex items-center gap-1 text-[#6a6a6a]"
             >
-              Previous
+              ← <span>Previous</span>
             </button>
-            <button className="w-10 h-10 flex items-center justify-center bg-[#2d2d2d] text-white rounded-md">
-              {currentPage}
-            </button>
-            <button className="w-10 h-10 flex items-center justify-center bg-white border border-gray-300 rounded-md">
-              2
-            </button>
-            <span>...</span>
-            <button className="w-10 h-10 flex items-center justify-center bg-white border border-gray-300 rounded-md">
-              68
-            </button>
+            <div className="flex items-center gap-2">
+              <button className="w-8 h-8 flex items-center justify-center bg-[#2d2d2d] text-white rounded-md">
+                {currentPage}
+              </button>
+              <button className="w-8 h-8 flex items-center justify-center text-[#2d2d2d]">
+                2
+              </button>
+              <span>...</span>
+              <button className="w-8 h-8 flex items-center justify-center text-[#2d2d2d]">
+                68
+              </button>
+            </div>
             <button
               onClick={() => setCurrentPage(Math.min(68, currentPage + 1))}
-              className="px-4 py-2 bg-white border border-gray-300 rounded-md"
+              className="flex items-center gap-1 text-[#2d2d2d]"
             >
-              Next
+              <span>Next</span> →
             </button>
           </div>
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="bg-[#2d2d2d] text-white">
-        <div className="max-w-4xl mx-auto px-6 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex gap-6 text-sm">
-              <a href="#" className="hover:underline">
-                Home
-              </a>
-              <span>|</span>
-              <a href="#" className="hover:underline">
-                About
-              </a>
-              <span>|</span>
-              <a href="#" className="hover:underline">
-                Profile
-              </a>
-            </div>
-            <div className="text-center md:text-right text-sm">
-              <p className="font-bold">Thyrd Spaces</p>
-              <p className="text-gray-400">copyright 2025</p>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
 
       {/* ---------- Modal ---------- */}
       {isModalOpen && (

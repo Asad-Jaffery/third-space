@@ -1,7 +1,9 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
+import SiteHeader from '../components/SiteHeader';
+import SiteFooter from '../components/SiteFooter';
 
 export default function SpaceDetails() {
   const searchParams = useSearchParams();
@@ -11,6 +13,13 @@ export default function SpaceDetails() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
   const [spaceData, setSpaceData] = useState(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [formTab, setFormTab] = useState('review'); // review | reflection
+  const [reviewTitle, setReviewTitle] = useState('');
+  const [reviewBody, setReviewBody] = useState('');
+  const [reflectionTitle, setReflectionTitle] = useState('');
+  const [reflectionBody, setReflectionBody] = useState('');
+  const [rating, setRating] = useState(0);
 
   // Mock data - in a real app this would come from a database or API
   const allSpaces = [
@@ -63,20 +72,7 @@ export default function SpaceDetails() {
 
   return (
     <div className="min-h-screen bg-[#3a3a3a]">
-      {/* Header */}
-      <header className="bg-[#c8d5b9] px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold text-[#2d2d2d]">Thyrd Spaces</h1>
-          <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M3 12h18M3 6h18M3 18h18" />
-          </svg>
-        </div>
-        <button className="text-[#2d2d2d]">
-          <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M3 12h18M3 6h18M3 18h18" />
-          </svg>
-        </button>
-      </header>
+      <SiteHeader />
 
       {/* Main Content */}
       <main className="bg-white max-w-md mx-auto min-h-screen">
@@ -118,7 +114,15 @@ export default function SpaceDetails() {
               {tag}
             </span>
           ))}
-          <button className="ml-auto px-4 py-1 bg-[#2d2d2d] text-white rounded text-sm">Review/Reflect</button>
+          <button
+            className="ml-auto px-4 py-1 bg-[#2d2d2d] text-white rounded text-sm"
+            onClick={() => {
+              setIsFormOpen(true);
+              setFormTab('review');
+            }}
+          >
+            Review/Reflect
+          </button>
         </div>
 
         {/* Description */}
@@ -232,6 +236,172 @@ export default function SpaceDetails() {
           </button>
         </div>
       </main>
+
+      <SiteFooter />
+
+      {/* Review/Reflection Modal */}
+      {isFormOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setIsFormOpen(false)}
+          />
+          <div
+            className="relative z-10 w-[92%] max-w-md bg-white rounded-lg shadow-xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="bg-[#cdd2c5] px-5 py-4 flex items-start justify-between">
+              <h2 className="text-xl font-bold text-[#111] leading-snug">
+                Add a Review or Rating
+              </h2>
+              <button
+                onClick={() => setIsFormOpen(false)}
+                className="text-2xl text-[#111] leading-none"
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+
+            <form
+              className="p-5 space-y-4"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (formTab === 'review') {
+                  console.log('Submit review', {
+                    reviewTitle,
+                    rating,
+                    reviewBody,
+                  });
+                } else {
+                  console.log('Submit reflection', {
+                    reflectionTitle,
+                    reflectionBody,
+                  });
+                }
+                setIsFormOpen(false);
+                setReviewTitle('');
+                setReviewBody('');
+                setReflectionTitle('');
+                setReflectionBody('');
+                setRating(0);
+              }}
+            >
+              <p className="text-sm text-[#111] font-medium">All fields required.</p>
+
+              {/* Tabs */}
+              <div className="flex gap-4 border border-gray-200 rounded-md px-3 py-2">
+                <button
+                  type="button"
+                  onClick={() => setFormTab('review')}
+                  className={`pb-1 text-sm font-semibold ${
+                    formTab === 'review'
+                      ? 'border-b-2 border-[#1f2a1f] text-[#1f2a1f]'
+                      : 'text-gray-500'
+                  }`}
+                >
+                  Review
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormTab('reflection')}
+                  className={`pb-1 text-sm font-semibold ${
+                    formTab === 'reflection'
+                      ? 'border-b-2 border-[#1f2a1f] text-[#1f2a1f]'
+                      : 'text-gray-500'
+                  }`}
+                >
+                  Reflection
+                </button>
+              </div>
+
+              {formTab === 'review' ? (
+                <div className="space-y-3 border border-gray-200 rounded-md p-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-[#111] mb-1">
+                      Review Title
+                    </label>
+                    <input
+                      value={reviewTitle}
+                      onChange={(e) => setReviewTitle(e.target.value)}
+                      placeholder="Value"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-[#111] mb-1">
+                      Rate the Third Space out of 5 Stars
+                    </label>
+                    <div className="flex gap-2 text-xl text-[#1f2a1f]">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          type="button"
+                          key={star}
+                          onClick={() => setRating(star)}
+                          className={`focus:outline-none ${rating >= star ? 'text-[#1f2a1f]' : 'text-gray-400'}`}
+                          aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
+                        >
+                          ★
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-[#111] mb-1">
+                      Description of Review
+                    </label>
+                    <textarea
+                      value={reviewBody}
+                      onChange={(e) => setReviewBody(e.target.value)}
+                      placeholder="Value"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm min-h-[100px]"
+                      required
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3 border border-gray-200 rounded-md p-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-[#111] mb-1">
+                      Reflection Title
+                    </label>
+                    <input
+                      value={reflectionTitle}
+                      onChange={(e) => setReflectionTitle(e.target.value)}
+                      placeholder="Value"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-[#111] mb-1">
+                      Reflection (write about the fun memories created here!)
+                    </label>
+                    <textarea
+                      value={reflectionBody}
+                      onChange={(e) => setReflectionBody(e.target.value)}
+                      placeholder="Value"
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm min-h-[120px]"
+                      required
+                    />
+                  </div>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                className="w-full mt-1 bg-[#1f2a1f] text-white font-semibold py-2.5 rounded-md"
+              >
+                Add
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
