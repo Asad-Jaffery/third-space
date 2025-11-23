@@ -1,6 +1,9 @@
 import { Suspense } from 'react';
 import SpaceDetails from './SpaceDetails';
 import Home from './Home';
+import ViewProfile from './ViewProfileStatic';
+import Login from './Login';
+import CreateAccount from './CreateAccount';
 
 export default function PagesRoute() {
   return (
