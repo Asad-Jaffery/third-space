@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import SiteHeader from "../components/SiteHeader";
 import SiteFooter from "../components/SiteFooter";
+// love this addition ^
 
 const getApiBase = () => {
   const raw =
@@ -21,6 +22,8 @@ export default function ThyrdSpacesHome() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false); 
+  const [loginPrompt, setLoginPrompt] = useState(false);
 
   // Wake backend to avoid first-request cold start
   useEffect(() => {
@@ -45,7 +48,6 @@ export default function ThyrdSpacesHome() {
 
   // ---- modal state + form state ----
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   const [formName, setFormName] = useState("");
   const [formTags, setFormTags] = useState([]);
   const [formDesc, setFormDesc] = useState("");
@@ -185,9 +187,18 @@ export default function ThyrdSpacesHome() {
       <main className="bg-white max-w-md mx-auto min-h-screen px-4 pt-5 shadow-sm border border-gray-200">
         {/* intro Section */}
         <div className="bg-[#d4d4d4] px-4 sm:px-5 py-6 sm:py-8 text-center rounded-lg shadow-sm">
-          <h2 className="text-2xl sm:text-3xl font-bold text-[#1f1f1f] mb-2 sm:mb-3 leading-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#1f1f1f] mb-2 sm:mb-3 leading-tight">
             Welcome to Thyrd Spaces
-          </h2>
+          </h1>
+          
+          {/* Nav bae */}
+          <nav className="flex items-center gap-6">
+            <button className="text-[#2d2d2d] font-medium hover:underline">Home</button>
+            <button className="text-[#2d2d2d] font-medium hover:underline">About</button>
+            <button className="text-[#2d2d2d] font-medium hover:underline">Thyrd Spaces</button>
+            <button className="text-[#2d2d2d] font-medium hover:underline">Profile</button>
+          </nav>
+
           <p className="text-sm sm:text-base text-[#2f2f2f] mb-4 sm:mb-5 leading-relaxed">
             Thyrd spaces is a website that facilitates community-spread findings
             of third spaces!
