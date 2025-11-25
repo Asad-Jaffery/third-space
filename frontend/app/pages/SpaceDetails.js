@@ -75,7 +75,7 @@ export default function SpaceDetails() {
       <SiteHeader />
 
       {/* Main Content */}
-      <main className="bg-white max-w-md mx-auto min-h-screen">
+      <main className="bg-white max-w-md mx-auto min-h-screen pt-16 pb-24">
         {/* Place Header */}
         <div className="bg-[#d4d4d4] px-6 py-3 flex items-center justify-between">
           <h2 className="text-2xl font-bold text-[#2d2d2d]">{spaceData.name.split(' ').map((word, index) => (
@@ -147,7 +147,7 @@ export default function SpaceDetails() {
         </div>
 
         {/* Ratings */}
-        <div className="px-6 py-4">
+        <div className="px-6 py-4">3r3333
           <h3 className="text-xl font-bold text-[#2d2d2d] mb-2">Ratings</h3>
           <div className="flex gap-1">
             {[1, 2, 3, 4, 5].map((star) => (

@@ -2,7 +2,7 @@
 
 export default function SiteHeader() {
   return (
-    <header className="bg-[#c8d5b9] px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between border-b border-[#b5c3a6]">
+    <header className="bg-[#c8d5b9] px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between border-b border-[#b5c3a6] sticky top-0 z-40">
       <div className="flex items-center gap-2">
         <h1 className="text-xl sm:text-2xl font-bold text-[#1f1f1f]">
           Thyrd Spaces
