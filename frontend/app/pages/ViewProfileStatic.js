@@ -1,0 +1,265 @@
+"use client";
+
+import { useState } from "react";
+
+export default function ViewProfile() {
+  const [activeTab, setActiveTab] = useState("savedSpaces");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const userData = {
+    username: "Ink_Bot_Trots34",
+    email: "user@example.com",
+    joinDate: "November 2024",
+  };
+
+  const savedSpaces = [
+    {
+      id: 1,
+      name: "Volunteer Park",
+      description: "This park is lovely, open to the public...",
+      category: "park",
+      tags: ["park", "views"],
+    },
+    {
+      id: 2,
+      name: "Capitol Hill Library",
+      description: "Community library with study spaces...",
+      category: "library",
+      tags: ["library"],
+    },
+  ];
+
+  const userReviews = [
+    {
+      id: 1,
+      spaceName: "Volunteer Park",
+      title: "Great Trails!",
+      text: "i love how the trails are nicely paved; they really minimize the chance for me to trip and fall",
+      date: "11/19/2025",
+      rating: 5,
+    },
+    {
+      id: 2,
+      spaceName: "Green Lake Park",
+      title: "Beautiful Views",
+      text: "Perfect spot for a peaceful walk around the lake",
+      date: "11/15/2025",
+      rating: 4,
+    },
+  ];
+
+  return (
+    <div className="min-h-screen bg-[#3a3a3a]">
+      {/* Header */}
+      <header className="bg-[#c8d5b9] px-6 py-4">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-[#2d2d2d]">Thyrd Spaces</h1>
+          
+          <nav className="flex items-center gap-6">
+            <button className="text-[#2d2d2d] font-medium hover:underline">Home</button>
+            <button className="text-[#2d2d2d] font-medium hover:underline">About</button>
+            <button className="text-[#2d2d2d] font-medium hover:underline">Thyrd Spaces</button>
+            <button className="text-[#2d2d2d] font-medium hover:underline">Profile</button>
+          </nav>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="bg-white max-w-4xl mx-auto min-h-screen">
+        {/* Profile Header */}
+        <div className="bg-[#d4d4d4] px-6 py-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-4xl font-bold text-[#2d2d2d] mb-2">{userData.username}</h2>
+              <p className="text-sm text-[#4a4a4a]">Member since {userData.joinDate}</p>
+            </div>
+            <div className="w-24 h-24 rounded-full bg-[#a8b89a] flex items-center justify-center">
+              <svg className="w-12 h-12 text-white" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+              </svg>
+            </div>
+          </div>
+          
+          <div className="flex gap-4">
+            <button className="px-6 py-2 bg-[#2d2d2d] text-white rounded hover:bg-[#1a1a1a]">
+              Edit Profile
+            </button>
+            <button className="px-6 py-2 bg-white text-[#2d2d2d] rounded border border-[#2d2d2d] hover:bg-gray-50">
+              Settings
+            </button>
+          </div>
+        </div>
+
+        {/* Stats Section */}
+        <div className="px-6 py-6 grid grid-cols-3 gap-4 border-b border-gray-200">
+          <div className="text-center">
+            <p className="text-3xl font-bold text-[#2d2d2d]">{savedSpaces.length}</p>
+            <p className="text-sm text-[#6a6a6a]">Saved Spaces</p>
+          </div>
+          <div className="text-center">
+            <p className="text-3xl font-bold text-[#2d2d2d]">{userReviews.length}</p>
+            <p className="text-sm text-[#6a6a6a]">Reviews</p>
+          </div>
+          <div className="text-center">
+            <p className="text-3xl font-bold text-[#2d2d2d]">0</p>
+            <p className="text-sm text-[#6a6a6a]">Reflections</p>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="px-6 py-4 flex gap-2 border-b border-gray-200">
+          <button 
+            onClick={() => setActiveTab("savedSpaces")}
+            className={`px-6 py-2 rounded font-medium ${
+              activeTab === "savedSpaces" 
+                ? "bg-[#e0e0e0] text-[#2d2d2d]" 
+                : "bg-white text-[#6a6a6a] border border-gray-300"
+            }`}
+          >
+            Saved Spaces
+          </button>
+          <button 
+            onClick={() => setActiveTab("reviews")}
+            className={`px-6 py-2 rounded font-medium ${
+              activeTab === "reviews" 
+                ? "bg-[#e0e0e0] text-[#2d2d2d]" 
+                : "bg-white text-[#6a6a6a] border border-gray-300"
+            }`}
+          >
+            My Reviews
+          </button>
+          <button 
+            onClick={() => setActiveTab("reflections")}
+            className={`px-6 py-2 rounded font-medium ${
+              activeTab === "reflections" 
+                ? "bg-[#e0e0e0] text-[#2d2d2d]" 
+                : "bg-white text-[#6a6a6a] border border-gray-300"
+            }`}
+          >
+            My Reflections
+          </button>
+        </div>
+
+        {/* Content Area */}
+        <div className="px-6 py-6">
+          {activeTab === "savedSpaces" && (
+            <div className="space-y-4">
+              <h3 className="text-2xl font-bold text-[#2d2d2d] mb-4">Saved Third Spaces</h3>
+              {savedSpaces.map((space) => (
+                <div key={space.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <div className="flex items-start justify-between mb-2">
+                    <h4 className="text-xl font-bold text-[#2d2d2d]">{space.name}</h4>
+                    <button className="text-red-500" aria-label="Remove from favorites">
+                      <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                      </svg>
+                    </button>
+                  </div>
+                  <p className="text-sm text-[#4a4a4a] mb-3 leading-relaxed">{space.description}</p>
+                  <div className="flex gap-2">
+                    {space.tags.map((tag, idx) => (
+                      <span
+                        key={tag}
+                        className={`px-3 py-1 rounded-full text-xs border ${
+                          idx % 2 === 0
+                            ? "bg-[#f5e6e6] text-[#6b4444] border-[#6b4444]"
+                            : "bg-[#e6f5e6] text-[#446b44] border-[#446b44]"
+                        }`}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {activeTab === "reviews" && (
+            <div className="space-y-4">
+              <h3 className="text-2xl font-bold text-[#2d2d2d] mb-4">My Reviews</h3>
+              {userReviews.map((review) => (
+                <div key={review.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <p className="text-sm text-[#6a6a6a] mb-1">{review.spaceName}</p>
+                      <h4 className="text-lg font-bold text-[#2d2d2d]">{review.title}</h4>
+                    </div>
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <svg 
+                          key={star} 
+                          className={`w-4 h-4 ${star <= review.rating ? "text-[#2d2d2d]" : "text-gray-300"}`} 
+                          viewBox="0 0 24 24" 
+                          fill={star <= review.rating ? "currentColor" : "none"}
+                          stroke="currentColor" 
+                          strokeWidth="2"
+                        >
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-sm text-[#4a4a4a] mb-3 leading-relaxed">{review.text}</p>
+                  <p className="text-xs text-[#6a6a6a]">{review.date}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {activeTab === "reflections" && (
+            <div className="text-center py-12">
+              <p className="text-lg text-[#6a6a6a]">No reflections yet</p>
+              <p className="text-sm text-[#6a6a6a] mt-2">Start reflecting on your third space experiences!</p>
+            </div>
+          )}
+        </div>
+
+        {/* Pagination */}
+        <div className="px-6 py-6 flex items-center justify-center gap-2 border-t border-gray-200">
+          <button 
+            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+            className="px-4 py-2 bg-white border border-gray-300 rounded hover:bg-gray-50"
+          >
+            Previous
+          </button>
+          <button className="w-10 h-10 flex items-center justify-center bg-[#2d2d2d] text-white rounded">
+            {currentPage}
+          </button>
+          <button className="w-10 h-10 flex items-center justify-center bg-white border border-gray-300 rounded hover:bg-gray-50">
+            2
+          </button>
+          <span>...</span>
+          <button className="w-10 h-10 flex items-center justify-center bg-white border border-gray-300 rounded hover:bg-gray-50">
+            5
+          </button>
+          <button 
+            onClick={() => setCurrentPage(Math.min(5, currentPage + 1))}
+            className="px-4 py-2 bg-white border border-gray-300 rounded hover:bg-gray-50"
+          >
+            Next
+          </button>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-[#2d2d2d] text-white">
+        <div className="max-w-4xl mx-auto px-6 py-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex gap-6 text-sm">
+              <a href="#" className="hover:underline">Home</a>
+              <span>|</span>
+              <a href="#" className="hover:underline">About</a>
+              <span>|</span>
+              <a href="#" className="hover:underline">Profile</a>
+            </div>
+            <div className="text-center md:text-right text-sm">
+              <p className="font-bold">Thyrd Spaces</p>
+              <p className="text-gray-400">copyright 2025</p>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
