@@ -16,6 +16,7 @@ app.add_middleware(
 
 app.include_router(users.router)
 app.include_router(spaces.router)
+app.include_router(reviews.router)
 
 
 # basic activity check
