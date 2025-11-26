@@ -395,12 +395,12 @@ export default function ThyrdSpacesHome() {
 
           {/* modal box */}
           <div
-            className="relative z-10 w-[92%] max-w-md rounded-lg bg-white shadow-xl overflow-hidden"
+            className="relative z-10 w-[92%] max-w-sm rounded-lg bg-white shadow-xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {/* header */}
-            <div className="bg-[#e0e0e0] px-5 py-4 flex items-start justify-between">
-              <h2 className="text-2xl font-extrabold text-[#111] leading-snug">
+            <div className="bg-[#e0e0e0] px-4 py-3 flex items-start justify-between">
+              <h2 className="text-xl font-bold text-[#111] leading-snug">
                 Add a Third Space
               </h2>
               <button
@@ -412,7 +412,7 @@ export default function ThyrdSpacesHome() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmitThirdSpace} className="p-5 space-y-4">
+            <form onSubmit={handleSubmitThirdSpace} className="p-4 space-y-3">
               <p className="text-sm text-[#111] font-medium">All fields required.</p>
               {submitError && (
                 <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2">

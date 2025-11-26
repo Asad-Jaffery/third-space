@@ -56,11 +56,11 @@ export default function LogIn() {
       </header>
 
       {/* Main Content */}
-      <main className="bg-white max-w-md mx-auto min-h-screen px-6 py-8">
-        <div className="bg-[#d4d4d4] rounded-lg p-6">
-          <h2 className="text-3xl font-bold text-[#2d2d2d] mb-6 text-center">Log In to Thyrd Spaces</h2>
+      <main className="bg-white max-w-sm mx-auto min-h-screen px-4 py-6">
+        <div className="bg-[#d4d4d4] rounded-lg p-5">
+          <h2 className="text-2xl font-bold text-[#2d2d2d] mb-4 text-center">Log In to Thyrd Spaces</h2>
           
-          <div className="space-y-5">
+          <div className="space-y-4">
             {/* Email Field */}
             <div>
               <label className="block text-sm font-bold text-[#2d2d2d] mb-2">
@@ -113,7 +113,7 @@ export default function LogIn() {
             <button
               onClick={handleSignIn}
               disabled={isSubmitting}
-              className="w-full bg-[#2d2d2d] text-white font-semibold py-3 rounded hover:bg-[#1a1a1a] disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full bg-[#2d2d2d] text-white font-semibold py-2.5 rounded hover:bg-[#1a1a1a] disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {isSubmitting ? "Signing In..." : "Sign In"}
             </button>

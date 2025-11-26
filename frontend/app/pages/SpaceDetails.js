@@ -247,11 +247,11 @@ export default function SpaceDetails() {
             onClick={() => setIsFormOpen(false)}
           />
           <div
-            className="relative z-10 w-[92%] max-w-md bg-white rounded-lg shadow-xl overflow-hidden"
+            className="relative z-10 w-[92%] max-w-sm bg-white rounded-lg shadow-xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="bg-[#cdd2c5] px-5 py-4 flex items-start justify-between">
-              <h2 className="text-xl font-bold text-[#111] leading-snug">
+            <div className="bg-[#cdd2c5] px-4 py-3 flex items-start justify-between">
+              <h2 className="text-lg font-bold text-[#111] leading-snug">
                 Add a Review or Rating
               </h2>
               <button
@@ -264,7 +264,7 @@ export default function SpaceDetails() {
             </div>
 
             <form
-              className="p-5 space-y-4"
+              className="p-4 space-y-3"
               onSubmit={(e) => {
                 e.preventDefault();
                 if (formTab === 'review') {
@@ -316,7 +316,7 @@ export default function SpaceDetails() {
               </div>
 
               {formTab === 'review' ? (
-                <div className="space-y-3 border border-gray-200 rounded-md p-4">
+                <div className="space-y-3 border border-gray-200 rounded-md p-3">
                   <div>
                     <label className="block text-sm font-semibold text-[#111] mb-1">
                       Review Title
@@ -334,7 +334,7 @@ export default function SpaceDetails() {
                     <label className="block text-sm font-semibold text-[#111] mb-1">
                       Rate the Third Space out of 5 Stars
                     </label>
-                    <div className="flex gap-2 text-xl text-[#1f2a1f]">
+                    <div className="flex gap-2 text-lg text-[#1f2a1f]">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <button
                           type="button"
@@ -363,7 +363,7 @@ export default function SpaceDetails() {
                   </div>
                 </div>
               ) : (
-                <div className="space-y-3 border border-gray-200 rounded-md p-4">
+                <div className="space-y-3 border border-gray-200 rounded-md p-3">
                   <div>
                     <label className="block text-sm font-semibold text-[#111] mb-1">
                       Reflection Title
