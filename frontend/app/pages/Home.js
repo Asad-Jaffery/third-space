@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import SiteHeader from "../components/SiteHeader";
 import SiteFooter from "../components/SiteFooter";
 // love this addition ^
@@ -15,6 +16,7 @@ const getApiBase = () => {
 };
 
 export default function ThyrdSpacesHome() {
+  const router = useRouter();
   const API_BASE = getApiBase();
   const [keyword, setKeyword] = useState("");
   const [category, setCategory] = useState("");
@@ -184,7 +186,7 @@ export default function ThyrdSpacesHome() {
       <SiteHeader />
 
       {/* Main Content */}
-      <main className="bg-white max-w-md mx-auto min-h-screen px-4 pt-5 shadow-sm border border-gray-200">
+      <main className="bg-white max-w-md mx-auto min-h-screen px-4 pt-16 pb-24 shadow-sm border border-gray-200">
         {/* intro Section */}
         <div className="bg-[#d4d4d4] px-4 sm:px-5 py-6 sm:py-8 text-center rounded-lg shadow-sm">
           <h1 className="text-2xl sm:text-3xl font-bold text-[#1f1f1f] mb-2 sm:mb-3 leading-tight">
@@ -292,7 +294,16 @@ export default function ThyrdSpacesHome() {
             {mockResults.map((result) => (
               <div
                 key={result.id}
-                className="bg-white border border-gray-200 rounded-md p-3 shadow-sm"
+                role="button"
+                tabIndex={0}
+                onClick={() => router.push(`/space-details`)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    router.push(`/space-details`);
+                  }
+                }}
+                className="bg-white border border-gray-200 rounded-md p-3 shadow-sm cursor-pointer transition-transform transition-shadow duration-150 hover:-translate-y-[2px] hover:shadow-md"
               >
                 <div className="flex items-start justify-between mb-2">
                   <div>
@@ -384,12 +395,12 @@ export default function ThyrdSpacesHome() {
 
           {/* modal box */}
           <div
-            className="relative z-10 w-[92%] max-w-md rounded-lg bg-white shadow-xl overflow-hidden"
+            className="relative z-10 w-[92%] max-w-sm rounded-lg bg-white shadow-xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {/* header */}
-            <div className="bg-[#e0e0e0] px-5 py-4 flex items-start justify-between">
-              <h2 className="text-2xl font-extrabold text-[#111] leading-snug">
+            <div className="bg-[#e0e0e0] px-4 py-3 flex items-start justify-between">
+              <h2 className="text-xl font-bold text-[#111] leading-snug">
                 Add a Third Space
               </h2>
               <button
@@ -401,7 +412,7 @@ export default function ThyrdSpacesHome() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmitThirdSpace} className="p-5 space-y-4">
+            <form onSubmit={handleSubmitThirdSpace} className="p-4 space-y-3">
               <p className="text-sm text-[#111] font-medium">All fields required.</p>
               {submitError && (
                 <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2">

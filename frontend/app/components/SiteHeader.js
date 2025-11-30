@@ -7,14 +7,13 @@ export default function SiteHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="bg-[#c8d5b9] w-full px-4 sm:px-6 py-4 flex items-center justify-between border-b border-[#b5c3a6] relative">
+    <header className="bg-[#c8d5b9] px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between border-b border-[#b5c3a6] sticky top-0 z-40">
       <div className="flex items-center gap-2">
         <h1 className="text-xl sm:text-2xl font-bold text-[#1f1f1f]">
           Thyrd Spaces
         </h1>
       </div>
       
-      {/* Menu Button */}
       <button 
         className="text-[#1f1f1f] p-2 rounded-lg hover:bg-[#b5c3a6] transition-colors"
         onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -44,10 +43,9 @@ export default function SiteHeader() {
             </button>
           </div>
 
-          {/* Menu Items */}
           <nav className="p-6 space-y-6">
             <Link 
-            href="/pages/Home" 
+            href="/pages" 
             className="block text-lg font-medium text-[#1f1f1f] py-3 px-4 rounded-lg hover:bg-[#b5c3a6] transition-colors"
             onClick={() => setIsMenuOpen(false)}
             >
