@@ -1,26 +1,22 @@
 "use client";
 
+import Link from "next/link";
+
 export default function SiteFooter() {
   return (
-    <footer className="bg-[#2d2d2d] text-white">
-      <div className="max-w-4xl mx-auto px-6 py-6">
+    <footer className="border-t py-8">
+      <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex gap-6 text-sm">
-            <a href="#" className="hover:underline">
-              Home
-            </a>
+            <Link href="/pages/Home" className="hover:underline">Home</Link>
             <span>|</span>
-            <a href="#" className="hover:underline">
-              About
-            </a>
+            <Link href="/" className="hover:underline">About</Link>
             <span>|</span>
-            <a href="#" className="hover:underline">
-              Profile
-            </a>
+            <Link href="/pages/ViewProfileStatic" className="hover:underline">Profile</Link>
           </div>
-          <div className="text-center md:text-right text-sm">
+          <div className="text-sm text-muted-foreground">
             <p className="font-bold">Thyrd Spaces</p>
-            <p className="text-gray-400">copyright 2025</p>
+            <p className="text-gray-400">© copyright 2025</p>
           </div>
         </div>
       </div>

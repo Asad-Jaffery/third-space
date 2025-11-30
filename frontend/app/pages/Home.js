@@ -190,7 +190,7 @@ export default function ThyrdSpacesHome() {
           <h1 className="text-2xl sm:text-3xl font-bold text-[#1f1f1f] mb-2 sm:mb-3 leading-tight">
             Welcome to Thyrd Spaces
           </h1>
-          
+
           {/* Nav bae */}
           <nav className="flex items-center gap-6">
             <button className="text-[#2d2d2d] font-medium hover:underline">Home</button>

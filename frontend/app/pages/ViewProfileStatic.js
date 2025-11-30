@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import SiteHeader from "../components/SiteHeader";
+import SiteFooter from "../components/SiteFooter";
 
 export default function ViewProfile() {
   const [activeTab, setActiveTab] = useState("savedSpaces");
@@ -50,23 +52,9 @@ export default function ViewProfile() {
 
   return (
     <div className="min-h-screen bg-[#3a3a3a]">
-      {/* Header */}
-      <header className="bg-[#c8d5b9] px-6 py-4">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-[#2d2d2d]">Thyrd Spaces</h1>
-          
-          <nav className="flex items-center gap-6">
-            <button className="text-[#2d2d2d] font-medium hover:underline">Home</button>
-            <button className="text-[#2d2d2d] font-medium hover:underline">About</button>
-            <button className="text-[#2d2d2d] font-medium hover:underline">Thyrd Spaces</button>
-            <button className="text-[#2d2d2d] font-medium hover:underline">Profile</button>
-          </nav>
-        </div>
-      </header>
+     <SiteHeader />
 
-      {/* Main Content */}
       <main className="bg-white max-w-4xl mx-auto min-h-screen">
-        {/* Profile Header */}
         <div className="bg-[#d4d4d4] px-6 py-8">
           <div className="flex items-center justify-between mb-6">
             <div>
@@ -90,7 +78,6 @@ export default function ViewProfile() {
           </div>
         </div>
 
-        {/* Stats Section */}
         <div className="px-6 py-6 grid grid-cols-3 gap-4 border-b border-gray-200">
           <div className="text-center">
             <p className="text-3xl font-bold text-[#2d2d2d]">{savedSpaces.length}</p>
@@ -106,7 +93,6 @@ export default function ViewProfile() {
           </div>
         </div>
 
-        {/* Tabs */}
         <div className="px-6 py-4 flex gap-2 border-b border-gray-200">
           <button 
             onClick={() => setActiveTab("savedSpaces")}
@@ -140,7 +126,6 @@ export default function ViewProfile() {
           </button>
         </div>
 
-        {/* Content Area */}
         <div className="px-6 py-6">
           {activeTab === "savedSpaces" && (
             <div className="space-y-4">
@@ -215,7 +200,6 @@ export default function ViewProfile() {
           )}
         </div>
 
-        {/* Pagination */}
         <div className="px-6 py-6 flex items-center justify-center gap-2 border-t border-gray-200">
           <button 
             onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
@@ -242,24 +226,7 @@ export default function ViewProfile() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-[#2d2d2d] text-white">
-        <div className="max-w-4xl mx-auto px-6 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex gap-6 text-sm">
-              <a href="#" className="hover:underline">Home</a>
-              <span>|</span>
-              <a href="#" className="hover:underline">About</a>
-              <span>|</span>
-              <a href="#" className="hover:underline">Profile</a>
-            </div>
-            <div className="text-center md:text-right text-sm">
-              <p className="font-bold">Thyrd Spaces</p>
-              <p className="text-gray-400">copyright 2025</p>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
