@@ -14,6 +14,8 @@ const getApiBase = () => {
 
 export default function CreateAccount() {
   const API_BASE = getApiBase();
+  const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+  const isSupabase = API_BASE.includes("supabase.co");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
@@ -53,22 +55,41 @@ export default function CreateAccount() {
     }
 
     try {
-      // problem hereeeee
-      const response = await fetch(`${API_BASE}/user/new`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        mode: "cors",
-        body: JSON.stringify({
-          email: email.trim(),
-          username: username.trim(),
-        }),
-      });
+      const payload = {
+        email: email.trim(),
+        username: username.trim(),
+      };
+
+      let response;
+
+      if (isSupabase) {
+        if (!SUPABASE_KEY) {
+          throw new Error("Supabase anon key is missing (set NEXT_PUBLIC_SUPABASE_ANON_KEY).");
+        }
+        response = await fetch(`${API_BASE}/rest/v1/users`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`,
+            Prefer: "return=representation",
+          },
+          body: JSON.stringify([payload]),
+        });
+      } else {
+        response = await fetch(`${API_BASE}/user/new`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          mode: "cors",
+          body: JSON.stringify(payload),
+        });
+      }
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || `Request failed with ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(errorText || `Request failed with ${response.status}`);
       }
 
       const data = await response.json();

@@ -15,6 +15,8 @@ const getApiBase = () => {
 
 export default function LogIn() {
   const API_BASE = getApiBase();
+  const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+  const isSupabase = API_BASE.includes("supabase.co");
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,36 +40,66 @@ export default function LogIn() {
     }
 
     try {
-      // Check if user exists by email
-      const response = await fetch(`${API_BASE}/user/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        mode: "cors",
-        body: JSON.stringify({
-          email: email.trim(),
-        }),
-      });
+      const trimmedEmail = email.trim();
+      let userRecord = null;
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        
-        if (response.status === 404) {
+      if (isSupabase) {
+        if (!SUPABASE_KEY) {
+          throw new Error("Supabase anon key is missing (set NEXT_PUBLIC_SUPABASE_ANON_KEY).");
+        }
+        const url = `${API_BASE}/rest/v1/users?email=eq.${encodeURIComponent(
+          trimmedEmail
+        )}&select=id,email,username&limit=1`;
+        const response = await fetch(url, {
+          method: "GET",
+          headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`,
+            "Content-Type": "application/json",
+          },
+        });
+        if (!response.ok) {
+          const errText = await response.text();
+          throw new Error(errText || `Login failed with ${response.status}`);
+        }
+        const data = await response.json();
+        userRecord = Array.isArray(data) ? data[0] : null;
+        if (!userRecord) {
           throw new Error("No account found with this email");
         }
-        
-        throw new Error(errorData.detail || `Login failed with ${response.status}`);
+      } else {
+        const response = await fetch(`${API_BASE}/user/login`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          mode: "cors",
+          body: JSON.stringify({
+            email: trimmedEmail,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          
+          if (response.status === 404) {
+            throw new Error("No account found with this email");
+          }
+          
+          throw new Error(errorData.detail || `Login failed with ${response.status}`);
+        }
+
+        const data = await response.json();
+        userRecord = data.user;
       }
 
-      const data = await response.json();
-      console.log("Login successful:", data);
+      console.log("Login successful:", userRecord);
 
-      if (data.user) {
-        localStorage.setItem("user", JSON.stringify(data.user));
-        localStorage.setItem("userId", data.user.id);
-        localStorage.setItem("userEmail", data.user.email);
-        localStorage.setItem("username", data.user.username);
+      if (userRecord) {
+        localStorage.setItem("user", JSON.stringify(userRecord));
+        localStorage.setItem("userId", userRecord.id);
+        localStorage.setItem("userEmail", userRecord.email);
+        localStorage.setItem("username", userRecord.username);
       }
 
       window.location.href = "/pages";
