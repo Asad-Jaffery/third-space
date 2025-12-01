@@ -95,14 +95,15 @@ export default function CreateAccount() {
       const data = await response.json();
       console.log("Registration successful:", data);
       
-      setSuccessMessage("Account created successfully! Redirecting to login...");
+      setSuccessMessage("Account created successfully! Redirecting to home...");
       
       setEmail("");
       setPassword("");
       setUsername("");
 
       setTimeout(() => {
-        window.location.href = "/pages/login";
+        // After sign-up, send the user to Home where they can continue browsing.
+        window.location.href = "/pages";
       }, 2000);
 
     } catch (error) {

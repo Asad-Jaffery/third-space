@@ -1,41 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import SiteFooter from "../components/SiteFooter";
+import { useRouter } from "next/navigation";
 import SiteHeader from "../components/SiteHeader";
+import SiteFooter from "../components/SiteFooter";
 
 export default function ViewProfile() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState("savedSpaces");
   const [currentPage, setCurrentPage] = useState(1);
   const [savedSpaces, setSavedSpaces] = useState([]);
-
-  const userData = {
-    username: "Ink_Bot_Trots34",
-    email: "user@example.com",
-    joinDate: "November 2024",
-  };
-
-  // Load saved spaces from localStorage
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      const raw = window.localStorage.getItem("savedSpaces");
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        setSavedSpaces(Array.isArray(parsed) ? parsed : []);
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
-
-  const removeSaved = (id) => {
-    const updated = savedSpaces.filter((s) => s.id !== id);
-    setSavedSpaces(updated);
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("savedSpaces", JSON.stringify(updated));
-    }
-  };
+  const [userData, setUserData] = useState(null);
+  const [isReady, setIsReady] = useState(false);
 
   const userReviews = [
     {
@@ -56,54 +32,116 @@ export default function ViewProfile() {
     },
   ];
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const rawUser = window.localStorage.getItem("user");
+      if (!rawUser) {
+        router.push("/pages"); // send to auth landing
+        return;
+      }
+      const parsedUser = JSON.parse(rawUser);
+      if (!parsedUser || (!parsedUser.username && !parsedUser.email)) {
+        window.localStorage.removeItem("user");
+        router.push("/pages");
+        return;
+      }
+      setUserData({
+        username: parsedUser.username || "User",
+        email: parsedUser.email || "Unknown",
+        joinDate: "Member",
+      });
+
+      const rawSaved = window.localStorage.getItem("savedSpaces");
+      if (rawSaved) {
+        const parsedSaved = JSON.parse(rawSaved);
+        setSavedSpaces(Array.isArray(parsedSaved) ? parsedSaved : []);
+      }
+    } catch {
+      router.push("/pages");
+    } finally {
+      setIsReady(true);
+    }
+  }, [router]);
+
+  const removeSaved = (id) => {
+    const updated = savedSpaces.filter((s) => s.id !== id);
+    setSavedSpaces(updated);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("savedSpaces", JSON.stringify(updated));
+    }
+  };
+
+  if (!isReady) {
+    return (
+      <div className="min-h-screen bg-[#3a3a3a] flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#3a3a3a]">
       <SiteHeader />
 
-      {/* Main Content */}
-      <main className="bg-white max-w-4xl mx-auto min-h-screen">
-        <div className="bg-[#d4d4d4] px-6 py-8">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-4xl font-bold text-[#2d2d2d] mb-2">{userData.username}</h2>
-              <p className="text-sm text-[#4a4a4a]">Member since {userData.joinDate}</p>
+      <main className="bg-white max-w-5xl mx-auto min-h-screen">
+        <div className="bg-[#d4d4d4] px-4 sm:px-6 py-6 sm:py-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6 mb-6">
+            <div className="min-w-0">
+              <h2 className="text-3xl sm:text-4xl font-bold text-[#2d2d2d] mb-2 truncate">
+                {userData?.username}
+              </h2>
+              <p className="text-sm text-[#4a4a4a] truncate">
+                {userData?.email} • {userData?.joinDate}
+              </p>
             </div>
-            <div className="w-24 h-24 rounded-full bg-[#a8b89a] flex items-center justify-center">
-              <svg className="w-12 h-12 text-white" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-              </svg>
+            <div className="flex items-center gap-3">
+              <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-[#a8b89a] flex items-center justify-center">
+                <svg className="w-8 h-8 sm:w-12 sm:h-12 text-white" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+              </div>
             </div>
           </div>
           
-          <div className="flex gap-4">
-            <button className="px-6 py-2 bg-[#2d2d2d] text-white rounded hover:bg-[#1a1a1a]">
-              Edit Profile
-            </button>
-            <button className="px-6 py-2 bg-white text-[#2d2d2d] rounded border border-[#2d2d2d] hover:bg-gray-50">
-              Settings
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <button
+              className="w-full sm:w-auto px-5 sm:px-6 py-2 sm:py-3 bg-[#2d2d2d] text-white rounded hover:bg-[#1a1a1a]"
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  window.localStorage.removeItem("user");
+                  window.localStorage.removeItem("userId");
+                  window.localStorage.removeItem("userEmail");
+                  window.localStorage.removeItem("username");
+                  window.localStorage.removeItem("savedSpaces");
+                }
+                router.push("/pages");
+              }}
+            >
+              Log Out
             </button>
           </div>
         </div>
 
-        <div className="px-6 py-6 grid grid-cols-3 gap-4 border-b border-gray-200">
-          <div className="text-center">
+        <div className="px-4 sm:px-6 py-6 grid grid-cols-1 sm:grid-cols-3 gap-4 border-b border-gray-200 text-center">
+          <div>
             <p className="text-3xl font-bold text-[#2d2d2d]">{savedSpaces.length}</p>
             <p className="text-sm text-[#6a6a6a]">Saved Spaces</p>
           </div>
-          <div className="text-center">
+          <div>
             <p className="text-3xl font-bold text-[#2d2d2d]">{userReviews.length}</p>
             <p className="text-sm text-[#6a6a6a]">Reviews</p>
           </div>
-          <div className="text-center">
+          <div>
             <p className="text-3xl font-bold text-[#2d2d2d]">0</p>
             <p className="text-sm text-[#6a6a6a]">Reflections</p>
           </div>
         </div>
 
-        <div className="px-6 py-4 flex gap-2 border-b border-gray-200">
+        <div className="px-4 sm:px-6 py-4 flex flex-col sm:flex-row gap-2 border-b border-gray-200">
           <button 
             onClick={() => setActiveTab("savedSpaces")}
-            className={`px-6 py-2 rounded font-medium ${
+            className={`w-full sm:w-auto px-6 py-2 rounded font-medium ${
               activeTab === "savedSpaces" 
                 ? "bg-[#e0e0e0] text-[#2d2d2d]" 
                 : "bg-white text-[#6a6a6a] border border-gray-300"
@@ -113,7 +151,7 @@ export default function ViewProfile() {
           </button>
           <button 
             onClick={() => setActiveTab("reviews")}
-            className={`px-6 py-2 rounded font-medium ${
+            className={`w-full sm:w-auto px-6 py-2 rounded font-medium ${
               activeTab === "reviews" 
                 ? "bg-[#e0e0e0] text-[#2d2d2d]" 
                 : "bg-white text-[#6a6a6a] border border-gray-300"
@@ -123,7 +161,7 @@ export default function ViewProfile() {
           </button>
           <button 
             onClick={() => setActiveTab("reflections")}
-            className={`px-6 py-2 rounded font-medium ${
+            className={`w-full sm:w-auto px-6 py-2 rounded font-medium ${
               activeTab === "reflections" 
                 ? "bg-[#e0e0e0] text-[#2d2d2d]" 
                 : "bg-white text-[#6a6a6a] border border-gray-300"
@@ -133,7 +171,7 @@ export default function ViewProfile() {
           </button>
         </div>
 
-        <div className="px-6 py-6">
+        <div className="px-4 sm:px-6 py-6">
           {activeTab === "savedSpaces" && (
             <div className="space-y-4">
               <h3 className="text-2xl font-bold text-[#2d2d2d] mb-4">Saved Third Spaces</h3>
@@ -155,7 +193,7 @@ export default function ViewProfile() {
                       </button>
                     </div>
                     <p className="text-sm text-[#4a4a4a] mb-3 leading-relaxed">{space.description}</p>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       {(space.tags || []).map((tag, idx) => (
                         <span
                           key={tag}
@@ -215,7 +253,7 @@ export default function ViewProfile() {
           )}
         </div>
 
-        <div className="px-6 py-6 flex items-center justify-center gap-2 border-t border-gray-200">
+        <div className="px-4 sm:px-6 py-6 flex items-center justify-center gap-2 border-t border-gray-200">
           <button 
             onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
             className="px-4 py-2 bg-white border border-gray-300 rounded hover:bg-gray-50"
@@ -239,9 +277,8 @@ export default function ViewProfile() {
             Next
           </button>
         </div>
-      </main>
 
-      <SiteFooter />
+      </main>
     </div>
-  );
+    );
 }
