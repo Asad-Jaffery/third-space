@@ -29,8 +29,11 @@ export default function ThyrdSpacesHome() {
   const [isLoggedIn, setIsLoggedIn] = useState(false); 
   const [loginPrompt, setLoginPrompt] = useState(false);
   const [spaces, setSpaces] = useState([]);
+  const [filteredSpaces, setFilteredSpaces] = useState([]);
+  const [searchActive, setSearchActive] = useState(false);
   const [isLoadingSpaces, setIsLoadingSpaces] = useState(true);
   const [spacesError, setSpacesError] = useState("");
+  const [savedSpaces, setSavedSpaces] = useState([]);
 
   // Wake backend to avoid first-request cold start
   useEffect(() => {
@@ -43,6 +46,20 @@ export default function ThyrdSpacesHome() {
     };
     wakeServer();
   }, [API_BASE]);
+
+  // Load saved spaces from localStorage
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem("savedSpaces");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        setSavedSpaces(Array.isArray(parsed) ? parsed : []);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
 
   const categories = [
     "All",
@@ -62,6 +79,7 @@ export default function ThyrdSpacesHome() {
   const [formAlt, setFormAlt] = useState("");
   const [formLocation, setFormLocation] = useState("");
   const [tagSelect, setTagSelect] = useState("");
+  const PAGE_SIZE = 3;
 
   const tagOptions = ["park", "views", "altar", "library", "community center", "garden"];
 
@@ -103,6 +121,16 @@ export default function ThyrdSpacesHome() {
     };
   };
 
+  // If user clears search fields, immediately show all spaces again.
+  useEffect(() => {
+    if (!keyword.trim() && !category.trim()) {
+      setFilteredSpaces(spaces);
+      setSearchActive(false);
+      setCurrentPage(1);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [keyword, category, spaces]);
+
   const fetchSpaces = useCallback(async () => {
     setSpacesError("");
     setIsLoadingSpaces(true);
@@ -113,6 +141,7 @@ export default function ThyrdSpacesHome() {
         // If backend hasn't been updated/deployed yet, we'll surface a clear message.
         if (res.status === 404) {
           setSpaces([]);
+          setFilteredSpaces([]);
           setSpacesError(
             "Spaces endpoint not found on the API. Please run the backend locally with the latest code or deploy the updated backend."
           );
@@ -122,7 +151,11 @@ export default function ThyrdSpacesHome() {
         throw new Error(errText || `Request failed with ${res.status}`);
       }
       const data = await res.json();
-      setSpaces(parse(data));
+      const parsed = parse(data);
+      setSpaces(parsed);
+      setFilteredSpaces(parsed);
+      setSearchActive(false);
+      setCurrentPage(1);
     } catch (err) {
       console.error("Fetch spaces failed:", err);
       setSpacesError(
@@ -138,6 +171,8 @@ export default function ThyrdSpacesHome() {
   useEffect(() => {
     fetchSpaces();
   }, [fetchSpaces]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredSpaces.length / PAGE_SIZE));
 
   const addTag = (tag) => {
     if (!tag) return;
@@ -232,6 +267,22 @@ export default function ThyrdSpacesHome() {
 
         if (newSpace) {
           setSpaces((prev) => [newSpace, ...prev]);
+          // Respect current filter state
+          if (searchActive) {
+            const matchesKeyword =
+              keyword.trim() === "" ||
+              newSpace.name.toLowerCase().includes(keyword.trim().toLowerCase()) ||
+              newSpace.description.toLowerCase().includes(keyword.trim().toLowerCase());
+            const matchesCategory =
+              !category ||
+              category === "all" ||
+              (newSpace.tags || []).some((t) => t.toLowerCase() === category.toLowerCase());
+            if (matchesKeyword && matchesCategory) {
+              setFilteredSpaces((prev) => [newSpace, ...prev]);
+            }
+          } else {
+            setFilteredSpaces((prev) => [newSpace, ...prev]);
+          }
         }
         setSubmitSuccess("Space saved!");
         resetForm();
@@ -252,7 +303,45 @@ export default function ThyrdSpacesHome() {
   };
 
   const handleSearch = () => {
-    console.log("Searching for:", keyword, category);
+    const trimmedKeyword = keyword.trim().toLowerCase();
+    const trimmedCategory = category.trim().toLowerCase();
+    const hasQuery = Boolean(trimmedKeyword || trimmedCategory);
+
+    if (!hasQuery) {
+      setFilteredSpaces(spaces);
+      setSearchActive(false);
+      setCurrentPage(1);
+      return;
+    }
+
+    const matches = spaces.filter((space) => {
+      const nameMatch = space.name?.toLowerCase().includes(trimmedKeyword);
+      const descMatch = space.description?.toLowerCase().includes(trimmedKeyword);
+      const tagMatch = (space.tags || []).some((t) => t.toLowerCase().includes(trimmedKeyword));
+      const keywordOk = !trimmedKeyword || nameMatch || descMatch || tagMatch;
+
+      const categoryOk =
+        !trimmedCategory ||
+        trimmedCategory === "all" ||
+        (space.tags || []).some((t) => t.toLowerCase() === trimmedCategory);
+
+      return keywordOk && categoryOk;
+    });
+
+    setFilteredSpaces(matches);
+    setSearchActive(true);
+    setCurrentPage(1);
+  };
+
+  const toggleSaveSpace = (space) => {
+    const exists = savedSpaces.some((s) => s.id === space.id);
+    const updated = exists
+      ? savedSpaces.filter((s) => s.id !== space.id)
+      : [...savedSpaces, space];
+    setSavedSpaces(updated);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("savedSpaces", JSON.stringify(updated));
+    }
   };
 
   return (
@@ -266,14 +355,6 @@ export default function ThyrdSpacesHome() {
           <h1 className="text-2xl sm:text-3xl font-bold text-[#1f1f1f] mb-2 sm:mb-3 leading-tight">
             Welcome to Thyrd Spaces
           </h1>
-
-          {/* Nav bae */}
-          <nav className="flex items-center gap-6">
-            <button className="text-[#2d2d2d] font-medium hover:underline">Home</button>
-            <button className="text-[#2d2d2d] font-medium hover:underline">About</button>
-            <button className="text-[#2d2d2d] font-medium hover:underline">Thyrd Spaces</button>
-            <button className="text-[#2d2d2d] font-medium hover:underline">Profile</button>
-          </nav>
 
           <p className="text-sm sm:text-base text-[#2f2f2f] mb-4 sm:mb-5 leading-relaxed">
             Thyrd spaces is a website that facilitates community-spread findings
@@ -371,99 +452,126 @@ export default function ThyrdSpacesHome() {
               <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded px-3 py-2">
                 {spacesError}
               </div>
-            ) : spaces.length === 0 ? (
-              <div className="text-sm text-[#4a4a4a]">No spaces yet. Add the first one!</div>
+            ) : filteredSpaces.length === 0 ? (
+              <div className="text-sm text-[#4a4a4a]">
+                {searchActive
+                  ? "No spaces match your search yet."
+                  : "No spaces yet. Add the first one!"}
+              </div>
             ) : (
-              spaces.map((result) => (
-                <div
-                  key={result.id}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => router.push(`/space-details?id=${result.id}`)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      router.push(`/space-details?id=${result.id}`);
-                    }
-                  }}
-                  className="bg-white border border-gray-200 rounded-md p-3 shadow-sm cursor-pointer transition-transform transition-shadow duration-150 hover:-translate-y-[2px] hover:shadow-md"
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <h4 className="text-lg font-bold text-[#2d2d2d]">
-                        {result.name}
-                      </h4>
-                      <p className="text-sm text-[#4a4a4a] truncate max-w-[180px]">
-                        {result.description}
-                      </p>
-                    </div>
-                    <button className="text-[#2d2d2d]" aria-label="Favorite">
-                      <svg
-                        className="w-8 h-8"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
+              filteredSpaces
+                .slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+                .map((result) => (
+                  <div
+                    key={result.id}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => router.push(`/space-details?id=${result.id}`)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        router.push(`/space-details?id=${result.id}`);
+                      }
+                    }}
+                    className="bg-white border border-gray-200 rounded-md p-3 shadow-sm cursor-pointer transition-transform transition-shadow duration-150 hover:-translate-y-[2px] hover:shadow-md"
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <h4 className="text-lg font-bold text-[#2d2d2d]">
+                          {result.name}
+                        </h4>
+                        <p className="text-sm text-[#4a4a4a] truncate max-w-[180px]">
+                          {result.description}
+                        </p>
+                      </div>
+                      <button
+                        className={`text-[#2d2d2d] ${savedSpaces.some((s) => s.id === result.id) ? "text-red-600" : ""}`}
+                        aria-label="Favorite"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleSaveSpace(result);
+                        }}
                       >
-                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                      </svg>
-                    </button>
-                  </div>
-                  <div className="flex gap-2 mb-2">
-                    {(result.tags || []).map((tag, idx) => (
-                      <span
-                        key={`${result.id}-${tag}`}
-                        className={`px-3 py-1 rounded-md text-xs border ${
-                          idx % 2 === 0
-                            ? "bg-[#f5e6e6] text-[#6b4444] border-[#6b4444]"
-                            : "bg-[#e6f5e6] text-[#446b44] border-[#446b44]"
-                        }`}
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  {result.image ? (
-                    <div className="w-full h-52 bg-gray-200 rounded-md overflow-hidden">
-                      <img
-                        src={result.image}
-                        alt={result.name}
-                        className="w-full h-full object-cover"
-                      />
+                        <svg
+                          className="w-8 h-8"
+                          viewBox="0 0 24 24"
+                          fill={savedSpaces.some((s) => s.id === result.id) ? "currentColor" : "none"}
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                        </svg>
+                      </button>
                     </div>
-                  ) : null}
-                </div>
-              ))
+                    <div className="flex gap-2 mb-2">
+                      {(result.tags || []).map((tag, idx) => (
+                        <span
+                          key={`${result.id}-${tag}`}
+                          className={`px-3 py-1 rounded-md text-xs border ${
+                            idx % 2 === 0
+                              ? "bg-[#f5e6e6] text-[#6b4444] border-[#6b4444]"
+                              : "bg-[#e6f5e6] text-[#446b44] border-[#446b44]"
+                          }`}
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    {result.image ? (
+                      <div className="w-full h-36 bg-gray-200 rounded-md overflow-hidden">
+                        <img
+                          src={result.image}
+                          alt={result.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ) : null}
+                  </div>
+                ))
             )}
           </div>
 
           {/* Pagination */}
-          <div className="py-6 flex items-center justify-center gap-3 text-sm text-[#6a6a6a]">
-            <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              className="flex items-center gap-1 text-[#6a6a6a]"
-            >
-              ← <span>Previous</span>
-            </button>
-            <div className="flex items-center gap-2">
-              <button className="w-8 h-8 flex items-center justify-center bg-[#2d2d2d] text-white rounded-md">
-                {currentPage}
+          {filteredSpaces.length > PAGE_SIZE && (
+            <div className="py-6 flex items-center justify-center gap-3 text-sm text-[#6a6a6a]">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                className="flex items-center gap-1 text-[#6a6a6a] disabled:text-gray-400"
+                disabled={currentPage === 1}
+              >
+                ← <span>Previous</span>
               </button>
-              <button className="w-8 h-8 flex items-center justify-center text-[#2d2d2d]">
-                2
-              </button>
-              <span>...</span>
-              <button className="w-8 h-8 flex items-center justify-center text-[#2d2d2d]">
-                68
+              <div className="flex items-center gap-2">
+                <button className="w-8 h-8 flex items-center justify-center bg-[#2d2d2d] text-white rounded-md">
+                  {currentPage}
+                </button>
+                {currentPage + 1 <= totalPages && (
+                  <button
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    className="w-8 h-8 flex items-center justify-center text-[#2d2d2d] border border-transparent hover:border-gray-300 rounded"
+                  >
+                    {currentPage + 1}
+                  </button>
+                )}
+                {currentPage + 2 < totalPages && <span>...</span>}
+                {currentPage + 1 < totalPages && (
+                  <button
+                    onClick={() => setCurrentPage(totalPages)}
+                    className="w-8 h-8 flex items-center justify-center text-[#2d2d2d] border border-transparent hover:border-gray-300 rounded"
+                  >
+                    {totalPages}
+                  </button>
+                )}
+              </div>
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                className="flex items-center gap-1 text-[#2d2d2d] disabled:text-gray-400"
+                disabled={currentPage === totalPages}
+              >
+                <span>Next</span> →
               </button>
             </div>
-            <button
-              onClick={() => setCurrentPage(Math.min(68, currentPage + 1))}
-              className="flex items-center gap-1 text-[#2d2d2d]"
-            >
-              <span>Next</span> →
-            </button>
-          </div>
+          )}
         </div>
       </main>
       <SiteFooter />
