@@ -29,6 +29,8 @@ export default function ThyrdSpacesHome() {
   const [isLoggedIn, setIsLoggedIn] = useState(false); 
   const [loginPrompt, setLoginPrompt] = useState(false);
   const [spaces, setSpaces] = useState([]);
+  const [filteredSpaces, setFilteredSpaces] = useState([]);
+  const [searchActive, setSearchActive] = useState(false);
   const [isLoadingSpaces, setIsLoadingSpaces] = useState(true);
   const [spacesError, setSpacesError] = useState("");
 
@@ -104,6 +106,16 @@ export default function ThyrdSpacesHome() {
     };
   };
 
+  // If user clears search fields, immediately show all spaces again.
+  useEffect(() => {
+    if (!keyword.trim() && !category.trim()) {
+      setFilteredSpaces(spaces);
+      setSearchActive(false);
+      setCurrentPage(1);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [keyword, category, spaces]);
+
   const fetchSpaces = useCallback(async () => {
     setSpacesError("");
     setIsLoadingSpaces(true);
@@ -114,6 +126,7 @@ export default function ThyrdSpacesHome() {
         // If backend hasn't been updated/deployed yet, we'll surface a clear message.
         if (res.status === 404) {
           setSpaces([]);
+          setFilteredSpaces([]);
           setSpacesError(
             "Spaces endpoint not found on the API. Please run the backend locally with the latest code or deploy the updated backend."
           );
@@ -123,7 +136,10 @@ export default function ThyrdSpacesHome() {
         throw new Error(errText || `Request failed with ${res.status}`);
       }
       const data = await res.json();
-      setSpaces(parse(data));
+      const parsed = parse(data);
+      setSpaces(parsed);
+      setFilteredSpaces(parsed);
+      setSearchActive(false);
       setCurrentPage(1);
     } catch (err) {
       console.error("Fetch spaces failed:", err);
@@ -141,7 +157,7 @@ export default function ThyrdSpacesHome() {
     fetchSpaces();
   }, [fetchSpaces]);
 
-  const totalPages = Math.max(1, Math.ceil(spaces.length / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(filteredSpaces.length / PAGE_SIZE));
 
   const addTag = (tag) => {
     if (!tag) return;
@@ -236,6 +252,22 @@ export default function ThyrdSpacesHome() {
 
         if (newSpace) {
           setSpaces((prev) => [newSpace, ...prev]);
+          // Respect current filter state
+          if (searchActive) {
+            const matchesKeyword =
+              keyword.trim() === "" ||
+              newSpace.name.toLowerCase().includes(keyword.trim().toLowerCase()) ||
+              newSpace.description.toLowerCase().includes(keyword.trim().toLowerCase());
+            const matchesCategory =
+              !category ||
+              category === "all" ||
+              (newSpace.tags || []).some((t) => t.toLowerCase() === category.toLowerCase());
+            if (matchesKeyword && matchesCategory) {
+              setFilteredSpaces((prev) => [newSpace, ...prev]);
+            }
+          } else {
+            setFilteredSpaces((prev) => [newSpace, ...prev]);
+          }
         }
         setSubmitSuccess("Space saved!");
         resetForm();
@@ -256,7 +288,34 @@ export default function ThyrdSpacesHome() {
   };
 
   const handleSearch = () => {
-    console.log("Searching for:", keyword, category);
+    const trimmedKeyword = keyword.trim().toLowerCase();
+    const trimmedCategory = category.trim().toLowerCase();
+    const hasQuery = Boolean(trimmedKeyword || trimmedCategory);
+
+    if (!hasQuery) {
+      setFilteredSpaces(spaces);
+      setSearchActive(false);
+      setCurrentPage(1);
+      return;
+    }
+
+    const matches = spaces.filter((space) => {
+      const nameMatch = space.name?.toLowerCase().includes(trimmedKeyword);
+      const descMatch = space.description?.toLowerCase().includes(trimmedKeyword);
+      const tagMatch = (space.tags || []).some((t) => t.toLowerCase().includes(trimmedKeyword));
+      const keywordOk = !trimmedKeyword || nameMatch || descMatch || tagMatch;
+
+      const categoryOk =
+        !trimmedCategory ||
+        trimmedCategory === "all" ||
+        (space.tags || []).some((t) => t.toLowerCase() === trimmedCategory);
+
+      return keywordOk && categoryOk;
+    });
+
+    setFilteredSpaces(matches);
+    setSearchActive(true);
+    setCurrentPage(1);
   };
 
   return (
@@ -367,10 +426,14 @@ export default function ThyrdSpacesHome() {
               <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded px-3 py-2">
                 {spacesError}
               </div>
-            ) : spaces.length === 0 ? (
-              <div className="text-sm text-[#4a4a4a]">No spaces yet. Add the first one!</div>
+            ) : filteredSpaces.length === 0 ? (
+              <div className="text-sm text-[#4a4a4a]">
+                {searchActive
+                  ? "No spaces match your search yet."
+                  : "No spaces yet. Add the first one!"}
+              </div>
             ) : (
-              spaces
+              filteredSpaces
                 .slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
                 .map((result) => (
                   <div
@@ -436,7 +499,7 @@ export default function ThyrdSpacesHome() {
           </div>
 
           {/* Pagination */}
-          {spaces.length > PAGE_SIZE && (
+          {filteredSpaces.length > PAGE_SIZE && (
             <div className="py-6 flex items-center justify-center gap-3 text-sm text-[#6a6a6a]">
               <button
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
