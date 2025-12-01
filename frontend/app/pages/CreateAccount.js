@@ -24,14 +24,12 @@ export default function CreateAccount() {
   const [successMessage, setSuccessMessage] = useState("");
 
   const handleRegister = async () => {
-    // Reset errors
     setEmailError("");
     setPasswordError("");
     setUsernameError("");
     setSuccessMessage("");
     setIsSubmitting(true);
 
-    // Basic validation
     let hasError = false;
 
     if (!email.includes("@")) {
@@ -55,7 +53,7 @@ export default function CreateAccount() {
     }
 
     try {
-      // Call your backend API
+      // problem hereeeee
       const response = await fetch(`${API_BASE}/user/new`, {
         method: "POST",
         headers: {
@@ -83,13 +81,12 @@ export default function CreateAccount() {
       setUsername("");
 
       setTimeout(() => {
-        window.location.href = "/pages/login"; // Update this path to match your routing
+        window.location.href = "/pages/login";
       }, 2000);
 
     } catch (error) {
       console.error("Registration failed:", error);
       
-      // Check if it's a network error
       if (error.message.includes("Failed to fetch")) {
         setEmailError("Could not reach the server. Please retry in a moment (Render may be waking).");
       } else if (error.message.includes("duplicate") || error.message.includes("already exists")) {

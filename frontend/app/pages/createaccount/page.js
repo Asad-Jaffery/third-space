@@ -2,6 +2,6 @@
 
 import CreateAccount from "../CreateAccount";
 
-export default function ViewProfilePage() {
+export default function CreateAccountPage() {
   return <CreateAccount />;
 }

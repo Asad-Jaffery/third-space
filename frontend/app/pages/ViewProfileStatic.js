@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import SiteHeader from "../components/SiteHeader";
-import SiteFooter from "../components/SiteFooter";
 
 export default function ViewProfile() {
   const [activeTab, setActiveTab] = useState("savedSpaces");
@@ -52,8 +50,21 @@ export default function ViewProfile() {
 
   return (
     <div className="min-h-screen bg-[#3a3a3a]">
-     <SiteHeader />
+      {/* Header */}
+      <header className="bg-[#c8d5b9] px-6 py-4">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-[#2d2d2d]">Thyrd Spaces</h1>
+          
+          <nav className="flex items-center gap-6">
+            <button className="text-[#2d2d2d] font-medium hover:underline">Home</button>
+            <button className="text-[#2d2d2d] font-medium hover:underline">About</button>
+            <button className="text-[#2d2d2d] font-medium hover:underline">Thyrd Spaces</button>
+            <button className="text-[#2d2d2d] font-medium hover:underline">Profile</button>
+          </nav>
+        </div>
+      </header>
 
+      {/* Main Content */}
       <main className="bg-white max-w-4xl mx-auto min-h-screen">
         <div className="bg-[#d4d4d4] px-6 py-8">
           <div className="flex items-center justify-between mb-6">
