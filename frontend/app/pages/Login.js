@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import SiteHeader from "../components/SiteHeader";
+import SiteFooter from "../components/SiteFooter";
+import Link from "next/link";
 
 export default function LogIn() {
   const [email, setEmail] = useState("");
@@ -41,19 +44,7 @@ export default function LogIn() {
 
   return (
     <div className="min-h-screen bg-[#3a3a3a]">
-      {/* Header */}
-      <header className="bg-[#c8d5b9] px-6 py-4">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-[#2d2d2d]">Thyrd Spaces</h1>
-          
-          <nav className="flex items-center gap-6">
-            <button className="text-[#2d2d2d] font-medium hover:underline">Home</button>
-            <button className="text-[#2d2d2d] font-medium hover:underline">About</button>
-            <button className="text-[#2d2d2d] font-medium hover:underline">Thyrd Spaces</button>
-            <button className="text-[#2d2d2d] font-medium hover:underline">Profile</button>
-          </nav>
-        </div>
-      </header>
+      <SiteHeader />
 
       {/* Main Content */}
       <main className="bg-white max-w-sm mx-auto min-h-screen px-4 py-6">
@@ -128,32 +119,15 @@ export default function LogIn() {
             {/* Link to Sign Up */}
             <div className="text-center text-sm text-[#4a4a4a] pt-2 border-t border-gray-300">
               Don't have an account?{" "}
-              <button className="text-[#2d2d2d] font-semibold underline hover:no-underline">
+              <Link href="/pages/createaccount" className="text-[#2d2d2d] font-semibold underline hover:no-underline">
                 Sign up for Account
-              </button>
+              </Link>
             </div>
           </div>
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-[#2d2d2d] text-white">
-        <div className="max-w-4xl mx-auto px-6 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex gap-6 text-sm">
-              <a href="#" className="hover:underline">Home</a>
-              <span>|</span>
-              <a href="#" className="hover:underline">About</a>
-              <span>|</span>
-              <a href="#" className="hover:underline">Profile</a>
-            </div>
-            <div className="text-center md:text-right text-sm">
-              <p className="font-bold">Thyrd Spaces</p>
-              <p className="text-gray-400">copyright 2025</p>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
