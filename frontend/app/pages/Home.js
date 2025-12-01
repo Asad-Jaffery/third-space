@@ -62,6 +62,7 @@ export default function ThyrdSpacesHome() {
   const [formAlt, setFormAlt] = useState("");
   const [formLocation, setFormLocation] = useState("");
   const [tagSelect, setTagSelect] = useState("");
+  const PAGE_SIZE = 3;
 
   const tagOptions = ["park", "views", "altar", "library", "community center", "garden"];
 
@@ -123,6 +124,7 @@ export default function ThyrdSpacesHome() {
       }
       const data = await res.json();
       setSpaces(parse(data));
+      setCurrentPage(1);
     } catch (err) {
       console.error("Fetch spaces failed:", err);
       setSpacesError(
@@ -138,6 +140,8 @@ export default function ThyrdSpacesHome() {
   useEffect(() => {
     fetchSpaces();
   }, [fetchSpaces]);
+
+  const totalPages = Math.max(1, Math.ceil(spaces.length / PAGE_SIZE));
 
   const addTag = (tag) => {
     if (!tag) return;
@@ -267,14 +271,6 @@ export default function ThyrdSpacesHome() {
             Welcome to Thyrd Spaces
           </h1>
 
-          {/* Nav bae */}
-          <nav className="flex items-center gap-6">
-            <button className="text-[#2d2d2d] font-medium hover:underline">Home</button>
-            <button className="text-[#2d2d2d] font-medium hover:underline">About</button>
-            <button className="text-[#2d2d2d] font-medium hover:underline">Thyrd Spaces</button>
-            <button className="text-[#2d2d2d] font-medium hover:underline">Profile</button>
-          </nav>
-
           <p className="text-sm sm:text-base text-[#2f2f2f] mb-4 sm:mb-5 leading-relaxed">
             Thyrd spaces is a website that facilitates community-spread findings
             of third spaces!
@@ -374,96 +370,112 @@ export default function ThyrdSpacesHome() {
             ) : spaces.length === 0 ? (
               <div className="text-sm text-[#4a4a4a]">No spaces yet. Add the first one!</div>
             ) : (
-              spaces.map((result) => (
-                <div
-                  key={result.id}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => router.push(`/space-details?id=${result.id}`)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      router.push(`/space-details?id=${result.id}`);
-                    }
-                  }}
-                  className="bg-white border border-gray-200 rounded-md p-3 shadow-sm cursor-pointer transition-transform transition-shadow duration-150 hover:-translate-y-[2px] hover:shadow-md"
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <h4 className="text-lg font-bold text-[#2d2d2d]">
-                        {result.name}
-                      </h4>
-                      <p className="text-sm text-[#4a4a4a] truncate max-w-[180px]">
-                        {result.description}
-                      </p>
+              spaces
+                .slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+                .map((result) => (
+                  <div
+                    key={result.id}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => router.push(`/space-details?id=${result.id}`)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        router.push(`/space-details?id=${result.id}`);
+                      }
+                    }}
+                    className="bg-white border border-gray-200 rounded-md p-3 shadow-sm cursor-pointer transition-transform transition-shadow duration-150 hover:-translate-y-[2px] hover:shadow-md"
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <h4 className="text-lg font-bold text-[#2d2d2d]">
+                          {result.name}
+                        </h4>
+                        <p className="text-sm text-[#4a4a4a] truncate max-w-[180px]">
+                          {result.description}
+                        </p>
+                      </div>
+                      <button className="text-[#2d2d2d]" aria-label="Favorite">
+                        <svg
+                          className="w-8 h-8"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                        </svg>
+                      </button>
                     </div>
-                    <button className="text-[#2d2d2d]" aria-label="Favorite">
-                      <svg
-                        className="w-8 h-8"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                      </svg>
-                    </button>
-                  </div>
-                  <div className="flex gap-2 mb-2">
-                    {(result.tags || []).map((tag, idx) => (
-                      <span
-                        key={`${result.id}-${tag}`}
-                        className={`px-3 py-1 rounded-md text-xs border ${
-                          idx % 2 === 0
-                            ? "bg-[#f5e6e6] text-[#6b4444] border-[#6b4444]"
-                            : "bg-[#e6f5e6] text-[#446b44] border-[#446b44]"
-                        }`}
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  {result.image ? (
-                    <div className="w-full h-52 bg-gray-200 rounded-md overflow-hidden">
-                      <img
-                        src={result.image}
-                        alt={result.name}
-                        className="w-full h-full object-cover"
-                      />
+                    <div className="flex gap-2 mb-2">
+                      {(result.tags || []).map((tag, idx) => (
+                        <span
+                          key={`${result.id}-${tag}`}
+                          className={`px-3 py-1 rounded-md text-xs border ${
+                            idx % 2 === 0
+                              ? "bg-[#f5e6e6] text-[#6b4444] border-[#6b4444]"
+                              : "bg-[#e6f5e6] text-[#446b44] border-[#446b44]"
+                          }`}
+                        >
+                          {tag}
+                        </span>
+                      ))}
                     </div>
-                  ) : null}
-                </div>
-              ))
+                    {result.image ? (
+                      <div className="w-full h-36 bg-gray-200 rounded-md overflow-hidden">
+                        <img
+                          src={result.image}
+                          alt={result.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ) : null}
+                  </div>
+                ))
             )}
           </div>
 
           {/* Pagination */}
-          <div className="py-6 flex items-center justify-center gap-3 text-sm text-[#6a6a6a]">
-            <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              className="flex items-center gap-1 text-[#6a6a6a]"
-            >
-              ← <span>Previous</span>
-            </button>
-            <div className="flex items-center gap-2">
-              <button className="w-8 h-8 flex items-center justify-center bg-[#2d2d2d] text-white rounded-md">
-                {currentPage}
+          {spaces.length > PAGE_SIZE && (
+            <div className="py-6 flex items-center justify-center gap-3 text-sm text-[#6a6a6a]">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                className="flex items-center gap-1 text-[#6a6a6a] disabled:text-gray-400"
+                disabled={currentPage === 1}
+              >
+                ← <span>Previous</span>
               </button>
-              <button className="w-8 h-8 flex items-center justify-center text-[#2d2d2d]">
-                2
-              </button>
-              <span>...</span>
-              <button className="w-8 h-8 flex items-center justify-center text-[#2d2d2d]">
-                68
+              <div className="flex items-center gap-2">
+                <button className="w-8 h-8 flex items-center justify-center bg-[#2d2d2d] text-white rounded-md">
+                  {currentPage}
+                </button>
+                {currentPage + 1 <= totalPages && (
+                  <button
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    className="w-8 h-8 flex items-center justify-center text-[#2d2d2d] border border-transparent hover:border-gray-300 rounded"
+                  >
+                    {currentPage + 1}
+                  </button>
+                )}
+                {currentPage + 2 < totalPages && <span>...</span>}
+                {currentPage + 1 < totalPages && (
+                  <button
+                    onClick={() => setCurrentPage(totalPages)}
+                    className="w-8 h-8 flex items-center justify-center text-[#2d2d2d] border border-transparent hover:border-gray-300 rounded"
+                  >
+                    {totalPages}
+                  </button>
+                )}
+              </div>
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                className="flex items-center gap-1 text-[#2d2d2d] disabled:text-gray-400"
+                disabled={currentPage === totalPages}
+              >
+                <span>Next</span> →
               </button>
             </div>
-            <button
-              onClick={() => setCurrentPage(Math.min(68, currentPage + 1))}
-              className="flex items-center gap-1 text-[#2d2d2d]"
-            >
-              <span>Next</span> →
-            </button>
-          </div>
+          )}
         </div>
       </main>
       <SiteFooter />
