@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import SiteFooter from "../components/SiteFooter";
+import SiteHeader from "../components/SiteHeader";
 
 export default function ViewProfile() {
   const [activeTab, setActiveTab] = useState("savedSpaces");
   const [currentPage, setCurrentPage] = useState(1);
+  const [savedSpaces, setSavedSpaces] = useState([]);
 
   const userData = {
     username: "Ink_Bot_Trots34",
@@ -12,22 +15,27 @@ export default function ViewProfile() {
     joinDate: "November 2024",
   };
 
-  const savedSpaces = [
-    {
-      id: 1,
-      name: "Volunteer Park",
-      description: "This park is lovely, open to the public...",
-      category: "park",
-      tags: ["park", "views"],
-    },
-    {
-      id: 2,
-      name: "Capitol Hill Library",
-      description: "Community library with study spaces...",
-      category: "library",
-      tags: ["library"],
-    },
-  ];
+  // Load saved spaces from localStorage
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem("savedSpaces");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        setSavedSpaces(Array.isArray(parsed) ? parsed : []);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const removeSaved = (id) => {
+    const updated = savedSpaces.filter((s) => s.id !== id);
+    setSavedSpaces(updated);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("savedSpaces", JSON.stringify(updated));
+    }
+  };
 
   const userReviews = [
     {
@@ -50,19 +58,7 @@ export default function ViewProfile() {
 
   return (
     <div className="min-h-screen bg-[#3a3a3a]">
-      {/* Header */}
-      <header className="bg-[#c8d5b9] px-6 py-4">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-[#2d2d2d]">Thyrd Spaces</h1>
-          
-          <nav className="flex items-center gap-6">
-            <button className="text-[#2d2d2d] font-medium hover:underline">Home</button>
-            <button className="text-[#2d2d2d] font-medium hover:underline">About</button>
-            <button className="text-[#2d2d2d] font-medium hover:underline">Thyrd Spaces</button>
-            <button className="text-[#2d2d2d] font-medium hover:underline">Profile</button>
-          </nav>
-        </div>
-      </header>
+      <SiteHeader />
 
       {/* Main Content */}
       <main className="bg-white max-w-4xl mx-auto min-h-screen">
@@ -141,33 +137,41 @@ export default function ViewProfile() {
           {activeTab === "savedSpaces" && (
             <div className="space-y-4">
               <h3 className="text-2xl font-bold text-[#2d2d2d] mb-4">Saved Third Spaces</h3>
-              {savedSpaces.map((space) => (
-                <div key={space.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                  <div className="flex items-start justify-between mb-2">
-                    <h4 className="text-xl font-bold text-[#2d2d2d]">{space.name}</h4>
-                    <button className="text-red-500" aria-label="Remove from favorites">
-                      <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2">
-                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                      </svg>
-                    </button>
-                  </div>
-                  <p className="text-sm text-[#4a4a4a] mb-3 leading-relaxed">{space.description}</p>
-                  <div className="flex gap-2">
-                    {space.tags.map((tag, idx) => (
-                      <span
-                        key={tag}
-                        className={`px-3 py-1 rounded-full text-xs border ${
-                          idx % 2 === 0
-                            ? "bg-[#f5e6e6] text-[#6b4444] border-[#6b4444]"
-                            : "bg-[#e6f5e6] text-[#446b44] border-[#446b44]"
-                        }`}
+              {savedSpaces.length === 0 ? (
+                <div className="text-sm text-[#6a6a6a]">No saved spaces yet.</div>
+              ) : (
+                savedSpaces.map((space) => (
+                  <div key={space.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                    <div className="flex items-start justify-between mb-2">
+                      <h4 className="text-xl font-bold text-[#2d2d2d]">{space.name}</h4>
+                      <button
+                        className="text-red-500"
+                        aria-label="Remove from favorites"
+                        onClick={() => removeSaved(space.id)}
                       >
-                        {tag}
-                      </span>
-                    ))}
+                        <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2">
+                          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                        </svg>
+                      </button>
+                    </div>
+                    <p className="text-sm text-[#4a4a4a] mb-3 leading-relaxed">{space.description}</p>
+                    <div className="flex gap-2">
+                      {(space.tags || []).map((tag, idx) => (
+                        <span
+                          key={tag}
+                          className={`px-3 py-1 rounded-full text-xs border ${
+                            idx % 2 === 0
+                              ? "bg-[#f5e6e6] text-[#6b4444] border-[#6b4444]"
+                              : "bg-[#e6f5e6] text-[#446b44] border-[#446b44]"
+                          }`}
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           )}
 

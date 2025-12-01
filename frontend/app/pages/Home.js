@@ -33,6 +33,7 @@ export default function ThyrdSpacesHome() {
   const [searchActive, setSearchActive] = useState(false);
   const [isLoadingSpaces, setIsLoadingSpaces] = useState(true);
   const [spacesError, setSpacesError] = useState("");
+  const [savedSpaces, setSavedSpaces] = useState([]);
 
   // Wake backend to avoid first-request cold start
   useEffect(() => {
@@ -45,6 +46,20 @@ export default function ThyrdSpacesHome() {
     };
     wakeServer();
   }, [API_BASE]);
+
+  // Load saved spaces from localStorage
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem("savedSpaces");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        setSavedSpaces(Array.isArray(parsed) ? parsed : []);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
 
   const categories = [
     "All",
@@ -318,6 +333,17 @@ export default function ThyrdSpacesHome() {
     setCurrentPage(1);
   };
 
+  const toggleSaveSpace = (space) => {
+    const exists = savedSpaces.some((s) => s.id === space.id);
+    const updated = exists
+      ? savedSpaces.filter((s) => s.id !== space.id)
+      : [...savedSpaces, space];
+    setSavedSpaces(updated);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("savedSpaces", JSON.stringify(updated));
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#1f1f1f]">
       <SiteHeader />
@@ -458,11 +484,18 @@ export default function ThyrdSpacesHome() {
                           {result.description}
                         </p>
                       </div>
-                      <button className="text-[#2d2d2d]" aria-label="Favorite">
+                      <button
+                        className={`text-[#2d2d2d] ${savedSpaces.some((s) => s.id === result.id) ? "text-red-600" : ""}`}
+                        aria-label="Favorite"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleSaveSpace(result);
+                        }}
+                      >
                         <svg
                           className="w-8 h-8"
                           viewBox="0 0 24 24"
-                          fill="none"
+                          fill={savedSpaces.some((s) => s.id === result.id) ? "currentColor" : "none"}
                           stroke="currentColor"
                           strokeWidth="2"
                         >
