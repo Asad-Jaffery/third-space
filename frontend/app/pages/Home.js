@@ -18,6 +18,8 @@ const getApiBase = () => {
 export default function ThyrdSpacesHome() {
   const router = useRouter();
   const API_BASE = getApiBase();
+  const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+  const isSupabase = API_BASE.includes("supabase.co");
   const [keyword, setKeyword] = useState("");
   const [category, setCategory] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -77,11 +79,36 @@ export default function ThyrdSpacesHome() {
     location: space.location_data || "",
   });
 
+  const getListRequest = () => {
+    if (!isSupabase) {
+      return {
+        url: `${API_BASE}/third_space/`,
+        options: {},
+        parse: (payload) => (payload.spaces || []).map(normalizeSpace),
+      };
+    }
+    if (!SUPABASE_KEY) {
+      throw new Error("Supabase anon key missing (NEXT_PUBLIC_SUPABASE_ANON_KEY)");
+    }
+    return {
+      url: `${API_BASE}/rest/v1/spaces?select=*`,
+      options: {
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+          "Content-Type": "application/json",
+        },
+      },
+      parse: (payload) => (Array.isArray(payload) ? payload.map(normalizeSpace) : []),
+    };
+  };
+
   const fetchSpaces = useCallback(async () => {
     setSpacesError("");
     setIsLoadingSpaces(true);
     try {
-      const res = await fetch(`${API_BASE}/third_space/`);
+      const { url, options, parse } = getListRequest();
+      const res = await fetch(url, options);
       if (!res.ok) {
         // If backend hasn't been updated/deployed yet, we'll surface a clear message.
         if (res.status === 404) {
@@ -95,7 +122,7 @@ export default function ThyrdSpacesHome() {
         throw new Error(errText || `Request failed with ${res.status}`);
       }
       const data = await res.json();
-      setSpaces((data.spaces || []).map(normalizeSpace));
+      setSpaces(parse(data));
     } catch (err) {
       console.error("Fetch spaces failed:", err);
       setSpacesError(
@@ -158,31 +185,54 @@ export default function ThyrdSpacesHome() {
           location_data: formLocation.trim(),
         };
 
-        const res = await fetch(`${API_BASE}/third_space/new`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          mode: "cors",
-          body: JSON.stringify(payload),
-        });
+        let newSpace = null;
 
-        if (!res.ok) {
-          const errText = await res.text();
-          throw new Error(errText || `Request failed with ${res.status}`);
+        if (isSupabase) {
+          if (!SUPABASE_KEY) {
+            throw new Error("Supabase anon key missing (NEXT_PUBLIC_SUPABASE_ANON_KEY)");
+          }
+          const res = await fetch(`${API_BASE}/rest/v1/spaces`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              apikey: SUPABASE_KEY,
+              Authorization: `Bearer ${SUPABASE_KEY}`,
+              Prefer: "return=representation",
+            },
+            body: JSON.stringify([payload]),
+          });
+          if (!res.ok) {
+            const errText = await res.text();
+            throw new Error(errText || `Request failed with ${res.status}`);
+          }
+          const data = await res.json();
+          newSpace = normalizeSpace((data || [])[0] || payload);
+        } else {
+          const res = await fetch(`${API_BASE}/third_space/new`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            mode: "cors",
+            body: JSON.stringify(payload),
+          });
+
+          if (!res.ok) {
+            const errText = await res.text();
+            throw new Error(errText || `Request failed with ${res.status}`);
+          }
+
+          const data = await res.json();
+          const createdId = data?.id;
+          newSpace = normalizeSpace({
+            id: createdId,
+            ...payload,
+          });
         }
 
-        const data = await res.json();
-        const createdId = data?.id;
-        const newSpace = normalizeSpace({
-          id: createdId,
-          name: payload.name,
-          description: payload.description,
-          tags: payload.tags,
-          photo_url: payload.photo_url,
-          location_data: payload.location_data,
-        });
-        setSpaces((prev) => [newSpace, ...prev]);
+        if (newSpace) {
+          setSpaces((prev) => [newSpace, ...prev]);
+        }
         setSubmitSuccess("Space saved!");
         resetForm();
         setIsModalOpen(false);

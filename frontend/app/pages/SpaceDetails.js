@@ -17,6 +17,8 @@ export default function SpaceDetails() {
   const searchParams = useSearchParams();
   const spaceId = searchParams.get('id');
   const API_BASE = getApiBase();
+  const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+  const isSupabase = API_BASE.includes("supabase.co");
   
   const [activeTab, setActiveTab] = useState('reviews');
   const [currentPage, setCurrentPage] = useState(1);
@@ -47,6 +49,30 @@ export default function SpaceDetails() {
     reviews: raw.reviews || [],
   });
 
+  const getDetailRequest = (id) => {
+    if (!isSupabase) {
+      return {
+        url: `${API_BASE}/third_space/${id}`,
+        options: {},
+        parse: (payload) => payload.space || payload,
+      };
+    }
+    if (!SUPABASE_KEY) {
+      throw new Error("Supabase anon key missing (NEXT_PUBLIC_SUPABASE_ANON_KEY)");
+    }
+    return {
+      url: `${API_BASE}/rest/v1/spaces?id=eq.${id}&select=*`,
+      options: {
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+          "Content-Type": "application/json",
+        },
+      },
+      parse: (payload) => (Array.isArray(payload) ? payload[0] : null),
+    };
+  };
+
   useEffect(() => {
     if (!spaceId) {
       setError("No space selected.");
@@ -58,7 +84,8 @@ export default function SpaceDetails() {
       setError("");
       setIsLoading(true);
       try {
-        const res = await fetch(`${API_BASE}/third_space/${spaceId}`);
+        const { url, options, parse } = getDetailRequest(spaceId);
+        const res = await fetch(url, options);
         if (!res.ok) {
           if (res.status === 404) {
             setError(
@@ -70,7 +97,7 @@ export default function SpaceDetails() {
           throw new Error(errText || `Request failed with ${res.status}`);
         }
         const data = await res.json();
-        const raw = data.space || data;
+        const raw = parse(data);
         setSpaceData(normalizeSpace(raw));
       } catch (err) {
         console.error("Load space failed:", err);
