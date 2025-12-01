@@ -2,40 +2,86 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import SiteHeader from "../components/SiteHeader";
 import SiteFooter from "../components/SiteFooter";
 
-export default function LogIn() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+const getApiBase = () => {
+  const raw =
+    (process.env.NEXT_PUBLIC_API_URL || "").trim() ||
+    "https://third-space.onrender.com";
+  if (raw.startsWith("http://") || raw.startsWith("https://")) return raw;
+  return `https://${raw.replace(/^\/+/, "")}`;
+};
 
-  const handleSignIn = async (e) => {
-    e.preventDefault();
+export default function LogIn() {
+  const API_BASE = getApiBase();
+  const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [generalError, setGeneralError] = useState("");
+
+  const handleSignIn = async () => {
     setEmailError("");
-    setPasswordError("");
+    setGeneralError("");
     setIsSubmitting(true);
+
+    let hasError = false;
 
     if (!email.includes("@")) {
       setEmailError("Please enter a valid email address");
-      setIsSubmitting(false);
-      return;
+      hasError = true;
     }
 
-    if (password.length < 6) {
-      setPasswordError("Password must be at least 6 characters");
+    if (hasError) {
       setIsSubmitting(false);
       return;
     }
 
     try {
-      console.log("Logging in:", { email, password });
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      
-      console.log("Login successful");
+      // Check if user exists by email
+      const response = await fetch(`${API_BASE}/user/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        mode: "cors",
+        body: JSON.stringify({
+          email: email.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        
+        if (response.status === 404) {
+          throw new Error("No account found with this email");
+        }
+        
+        throw new Error(errorData.detail || `Login failed with ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Login successful:", data);
+
+      if (data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("userId", data.user.id);
+        localStorage.setItem("userEmail", data.user.email);
+        localStorage.setItem("username", data.user.username);
+      }
+
+      window.location.href = "/pages";
+
     } catch (error) {
-      setPasswordError("Invalid email or password");
+      console.error("Login failed:", error);
+      
+      if (error.message.includes("Failed to fetch")) {
+        setGeneralError("Could not reach the server. Please retry in a moment (Render may be waking).");
+      } else if (error.message.includes("No account found")) {
+        setGeneralError("No account found with this email. Please sign up first.");
+      } else {
+        setGeneralError(error.message || "Login failed. Please try again.");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -43,26 +89,21 @@ export default function LogIn() {
 
   return (
     <div className="min-h-screen bg-[#3a3a3a]">
-      {/* Header */}
-      <header className="bg-[#c8d5b9] px-6 py-4">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-[#2d2d2d]">Thyrd Spaces</h1>
-          
-          <nav className="flex items-center gap-6">
-            <button className="text-[#2d2d2d] font-medium hover:underline">Home</button>
-            <button className="text-[#2d2d2d] font-medium hover:underline">About</button>
-            <button className="text-[#2d2d2d] font-medium hover:underline">Thyrd Spaces</button>
-            <button className="text-[#2d2d2d] font-medium hover:underline">Profile</button>
-          </nav>
-        </div>
-      </header>
+      <SiteHeader />
 
-      {/* Main Content */}
       <main className="bg-white max-w-sm mx-auto min-h-screen px-4 py-6">
-      <div className="bg-[#d4d4d4] rounded-lg p-5">
-        <h2 className="text-2xl font-bold text-[#2d2d2d] mb-4 text-center">Log In to Thyrd Spaces</h2>
-        
-        <div className="space-y-4">
+        <div className="bg-[#d4d4d4] rounded-lg p-5">
+          <h2 className="text-2xl font-bold text-[#2d2d2d] mb-4 text-center">
+            Log In to Thyrd Spaces
+          </h2>
+
+          {generalError && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-sm text-red-700">
+              {generalError}
+            </div>
+          )}
+
+          <div className="space-y-4">
             <div>
               <label className="block text-sm font-bold text-[#2d2d2d] mb-2">
                 Email
@@ -72,7 +113,8 @@ export default function LogIn() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Description Value"
+                  onKeyPress={(e) => e.key === "Enter" && handleSignIn()}
+                  placeholder="Enter your email"
                   className={`w-full px-4 py-2 border rounded bg-white ${
                     emailError ? "border-red-500" : "border-gray-300"
                   }`}
@@ -80,30 +122,7 @@ export default function LogIn() {
                 {emailError && (
                   <div className="mt-1 text-sm text-red-600 flex items-center gap-1">
                     <span>⚠</span>
-                    <span>Error: {emailError}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-[#2d2d2d] mb-2">
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Description Value"
-                  className={`w-full px-4 py-2 border rounded bg-white ${
-                    passwordError ? "border-red-500" : "border-gray-300"
-                  }`}
-                />
-                {passwordError && (
-                  <div className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                    <span>⚠</span>
-                    <span>Error: {passwordError}</span>
+                    <span>{emailError}</span>
                   </div>
                 )}
               </div>
@@ -117,15 +136,12 @@ export default function LogIn() {
               {isSubmitting ? "Signing In..." : "Sign In"}
             </button>
 
-            <div className="text-center">
-              <button className="text-sm text-[#4a4a4a] underline hover:no-underline">
-                Forgot password?
-              </button>
-            </div>
-
             <div className="text-center text-sm text-[#4a4a4a] pt-2 border-t border-gray-300">
               Don't have an account?{" "}
-              <Link href="/pages/createaccount" className="text-[#2d2d2d] font-semibold underline hover:no-underline">
+              <Link
+                href="/pages/createaccount"
+                className="text-[#2d2d2d] font-semibold underline hover:no-underline"
+              >
                 Sign up for Account
               </Link>
             </div>

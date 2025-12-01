@@ -59,7 +59,7 @@ export default function SiteHeader() {
               About
             </Link>
             <Link 
-              href="/profile" 
+              href="pages/viewprofilestatic" 
               className="block text-lg font-medium text-[#1f1f1f] py-3 px-4 rounded-lg hover:bg-[#b5c3a6] transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
@@ -68,9 +68,8 @@ export default function SiteHeader() {
             
             <div className="border-t border-[#b5c3a6] my-4"></div>
             
-            {/* Login Button */}
             <Link 
-              href="/login" 
+              href="pages/login" 
               className="block text-lg font-bold text-[#1f1f1f] py-3 px-4 rounded-lg bg-[#b5c3a6] hover:bg-[#a8b89a] text-center transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
