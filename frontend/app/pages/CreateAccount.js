@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import SiteHeader from "../components/SiteHeader";
+import SiteFooter from "../components/SiteFooter";
 
 export default function CreateAccount() {
   const [email, setEmail] = useState("");
@@ -41,8 +43,8 @@ export default function CreateAccount() {
 
   return (
     <div className="min-h-screen bg-[#3a3a3a]">
-      {/* Header */}
-      <header className="bg-[#c8d5b9] px-6 py-4">
+      <SiteHeader />
+      {/* <header className="bg-[#c8d5b9] px-6 py-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <h1 className="text-2xl font-bold text-[#2d2d2d]">Thyrd Spaces</h1>
           
@@ -53,15 +55,12 @@ export default function CreateAccount() {
             <button className="text-[#2d2d2d] font-medium hover:underline">Profile</button>
           </nav>
         </div>
-      </header>
-
-      {/* Main Content */}
+      </header> */}
       <main className="bg-white max-w-sm mx-auto min-h-screen px-4 py-6">
         <div className="bg-[#d4d4d4] rounded-lg p-5">
           <h2 className="text-2xl font-bold text-[#2d2d2d] mb-4 text-center">Create Account</h2>
           
-          <div className="space-y-4">
-            {/* Email Field */}
+          <div className="space-y-5">
             <div>
               <label className="block text-sm font-bold text-[#2d2d2d] mb-2">
                 Email
@@ -85,7 +84,6 @@ export default function CreateAccount() {
               </div>
             </div>
 
-            {/* Password Field */}
             <div>
               <label className="block text-sm font-bold text-[#2d2d2d] mb-2">
                 Password
@@ -109,7 +107,6 @@ export default function CreateAccount() {
               </div>
             </div>
 
-            {/* Label/Username Field (optional) */}
             <div>
               <label className="block text-sm font-bold text-[#2d2d2d] mb-2">
                 Label
@@ -121,7 +118,6 @@ export default function CreateAccount() {
               />
             </div>
 
-            {/* Register Button */}
             <button
               onClick={handleRegister}
               disabled={isSubmitting}
@@ -130,7 +126,6 @@ export default function CreateAccount() {
               {isSubmitting ? "Creating Account..." : "Register"}
             </button>
 
-            {/* Link to Login */}
             <div className="text-center text-sm text-[#4a4a4a] mt-4">
               Already have an account?{" "}
               <button className="text-[#2d2d2d] font-semibold underline hover:no-underline">
@@ -141,8 +136,8 @@ export default function CreateAccount() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-[#2d2d2d] text-white">
+      <SiteFooter />
+      {/* <footer className="bg-[#2d2d2d] text-white">
         <div className="max-w-4xl mx-auto px-6 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex gap-6 text-sm">
@@ -158,7 +153,7 @@ export default function CreateAccount() {
             </div>
           </div>
         </div>
-      </footer>
+      </footer> */}
     </div>
   );
 }

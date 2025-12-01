@@ -13,17 +13,15 @@ export default function SiteFooter() {
               Home
             </Link>
             <span>|</span>
-            <a href="#" className="hover:underline">
-              About
-            </a>
+            <Link href="/" className="hover:underline">About</Link>
             <span>|</span>
             <Link href="/pages/viewprofilestatic" className="hover:underline">
               Profile
             </Link>
           </div>
-          <div className="text-center md:text-right text-sm">
+          <div className="text-sm text-muted-foreground">
             <p className="font-bold">Thyrd Spaces</p>
-            <p className="text-gray-400">copyright 2025</p>
+            <p className="text-gray-400">© copyright 2025</p>
           </div>
         </div>
       </div>

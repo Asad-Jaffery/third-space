@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import SiteHeader from "../components/SiteHeader";
-import SiteFooter from "../components/SiteFooter";
 import Link from "next/link";
+import SiteFooter from "../components/SiteFooter";
 
 export default function LogIn() {
   const [email, setEmail] = useState("");
@@ -44,15 +43,26 @@ export default function LogIn() {
 
   return (
     <div className="min-h-screen bg-[#3a3a3a]">
-      <SiteHeader />
+      {/* Header */}
+      <header className="bg-[#c8d5b9] px-6 py-4">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-[#2d2d2d]">Thyrd Spaces</h1>
+          
+          <nav className="flex items-center gap-6">
+            <button className="text-[#2d2d2d] font-medium hover:underline">Home</button>
+            <button className="text-[#2d2d2d] font-medium hover:underline">About</button>
+            <button className="text-[#2d2d2d] font-medium hover:underline">Thyrd Spaces</button>
+            <button className="text-[#2d2d2d] font-medium hover:underline">Profile</button>
+          </nav>
+        </div>
+      </header>
 
       {/* Main Content */}
       <main className="bg-white max-w-sm mx-auto min-h-screen px-4 py-6">
-        <div className="bg-[#d4d4d4] rounded-lg p-5">
-          <h2 className="text-2xl font-bold text-[#2d2d2d] mb-4 text-center">Log In to Thyrd Spaces</h2>
-          
-          <div className="space-y-4">
-            {/* Email Field */}
+      <div className="bg-[#d4d4d4] rounded-lg p-5">
+        <h2 className="text-2xl font-bold text-[#2d2d2d] mb-4 text-center">Log In to Thyrd Spaces</h2>
+        
+        <div className="space-y-4">
             <div>
               <label className="block text-sm font-bold text-[#2d2d2d] mb-2">
                 Email
@@ -76,7 +86,6 @@ export default function LogIn() {
               </div>
             </div>
 
-            {/* Password Field */}
             <div>
               <label className="block text-sm font-bold text-[#2d2d2d] mb-2">
                 Password
@@ -100,7 +109,6 @@ export default function LogIn() {
               </div>
             </div>
 
-            {/* Sign In Button */}
             <button
               onClick={handleSignIn}
               disabled={isSubmitting}
@@ -109,14 +117,12 @@ export default function LogIn() {
               {isSubmitting ? "Signing In..." : "Sign In"}
             </button>
 
-            {/* Forgot Password Link */}
             <div className="text-center">
               <button className="text-sm text-[#4a4a4a] underline hover:no-underline">
                 Forgot password?
               </button>
             </div>
 
-            {/* Link to Sign Up */}
             <div className="text-center text-sm text-[#4a4a4a] pt-2 border-t border-gray-300">
               Don't have an account?{" "}
               <Link href="/pages/createaccount" className="text-[#2d2d2d] font-semibold underline hover:no-underline">

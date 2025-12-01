@@ -5,9 +5,18 @@ import { useSearchParams } from 'next/navigation';
 import SiteHeader from '../components/SiteHeader';
 import SiteFooter from '../components/SiteFooter';
 
+const getApiBase = () => {
+  const raw =
+    (process.env.NEXT_PUBLIC_API_URL || "").trim() ||
+    "https://third-space.onrender.com";
+  if (raw.startsWith("http://") || raw.startsWith("https://")) return raw;
+  return `https://${raw.replace(/^\/+/, "")}`;
+};
+
 export default function SpaceDetails() {
   const searchParams = useSearchParams();
   const spaceId = searchParams.get('id');
+  const API_BASE = getApiBase();
   
   const [activeTab, setActiveTab] = useState('reviews');
   const [currentPage, setCurrentPage] = useState(1);
@@ -20,55 +29,91 @@ export default function SpaceDetails() {
   const [reflectionTitle, setReflectionTitle] = useState('');
   const [reflectionBody, setReflectionBody] = useState('');
   const [rating, setRating] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // Mock data - in a real app this would come from a database or API
-  const allSpaces = [
-    {
-      id: 1,
-      name: 'Volunteer Park',
-      description: 'A wonderful park for park goers and park enthusiasts. It is free, parking is lovely for all the commuters. Beautiful views and there are covered areas that are sometimes reserved.',
-      tags: ['park', 'views'],
-      image: '/api/placeholder/400/200',
-      altText: 'Beautiful park with walking trails',
-      location: 'https://maps.google.com/volunteer-park',
-      reviews: [
-        {
-          id: 1,
-          title: "Great Trails!",
-          text: "i love how the trails are nicely paved; they really minimize the chance for me to trip and fall",
-          author: "Ink_Bot_Trots34",
-          date: "11/19/2025",
-          rating: 5
-        },
-        {
-          id: 2,
-          title: "Perfect for Morning Walks!",
-          text: "Beautiful scenery and well-maintained paths. Great place to start the day.",
-          author: "MorningWalker",
-          date: "11/18/2025",
-          rating: 5
-        }
-      ]
-    }
-  ];
+  const normalizeSpace = (raw) => ({
+    id: raw.id,
+    name: raw.name,
+    description: raw.description,
+    tags: Array.isArray(raw.tags)
+      ? raw.tags
+      : String(raw.tags || "")
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean),
+    image: raw.photo_url || "",
+    location: raw.location_data || "",
+    reviews: raw.reviews || [],
+  });
 
   useEffect(() => {
-    if (spaceId) {
-      const space = allSpaces.find(s => s.id === parseInt(spaceId));
-      setSpaceData(space);
-    } else {
-      // Default to first space if no ID provided
-      setSpaceData(allSpaces[0]);
+    if (!spaceId) {
+      setError("No space selected.");
+      setIsLoading(false);
+      return;
     }
-  }, [spaceId]);
 
-  if (!spaceData) {
+    const fetchSpace = async () => {
+      setError("");
+      setIsLoading(true);
+      try {
+        const res = await fetch(`${API_BASE}/third_space/${spaceId}`);
+        if (!res.ok) {
+          if (res.status === 404) {
+            setError(
+              "Space not found or the spaces endpoint is not available on the API. Please run the backend locally with the latest code or deploy the updated backend."
+            );
+            return;
+          }
+          const errText = await res.text();
+          throw new Error(errText || `Request failed with ${res.status}`);
+        }
+        const data = await res.json();
+        const raw = data.space || data;
+        setSpaceData(normalizeSpace(raw));
+      } catch (err) {
+        console.error("Load space failed:", err);
+        setError(
+          err?.message?.includes("Failed to fetch")
+            ? "Could not load this space (network/server issue). Please retry."
+            : err.message || "Unable to load this space right now."
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSpace();
+  }, [spaceId, API_BASE]);
+
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-[#3a3a3a] flex items-center justify-center">
         <div className="text-white text-xl">Loading...</div>
       </div>
     );
   }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#3a3a3a] flex items-center justify-center px-4">
+        <div className="bg-white max-w-sm w-full rounded-md border border-red-200 px-4 py-3 text-red-700 text-center">
+          {error}
+        </div>
+      </div>
+    );
+  }
+
+  if (!spaceData) {
+    return (
+      <div className="min-h-screen bg-[#3a3a3a] flex items-center justify-center">
+        <div className="text-white text-xl">No data for this space.</div>
+      </div>
+    );
+  }
+
+  const nameParts = (spaceData.name || "").split(" ").filter(Boolean);
 
   return (
     <div className="min-h-screen bg-[#3a3a3a]">
@@ -78,12 +123,14 @@ export default function SpaceDetails() {
       <main className="bg-white max-w-md mx-auto min-h-screen pt-16 pb-24">
         {/* Place Header */}
         <div className="bg-[#d4d4d4] px-6 py-3 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-[#2d2d2d]">{spaceData.name.split(' ').map((word, index) => (
-            <span key={index}>
-              {word}
-              {index < spaceData.name.split(' ').length - 1 && <br />}
-            </span>
-          ))}</h2>
+          <h2 className="text-2xl font-bold text-[#2d2d2d]">
+            {nameParts.map((word, index) => (
+              <span key={`${word}-${index}`}>
+                {word}
+                {index < nameParts.length - 1 && <br />}
+              </span>
+            ))}
+          </h2>
           <button 
             onClick={() => setIsFavorite(!isFavorite)}
             className="text-[#2d2d2d]"
@@ -147,7 +194,7 @@ export default function SpaceDetails() {
         </div>
 
         {/* Ratings */}
-        <div className="px-6 py-4">3r3333
+        <div className="px-6 py-4">
           <h3 className="text-xl font-bold text-[#2d2d2d] mb-2">Ratings</h3>
           <div className="flex gap-1">
             {[1, 2, 3, 4, 5].map((star) => (

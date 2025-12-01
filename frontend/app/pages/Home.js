@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import SiteHeader from "../components/SiteHeader";
 import SiteFooter from "../components/SiteFooter";
@@ -26,6 +26,9 @@ export default function ThyrdSpacesHome() {
   const [submitSuccess, setSubmitSuccess] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false); 
   const [loginPrompt, setLoginPrompt] = useState(false);
+  const [spaces, setSpaces] = useState([]);
+  const [isLoadingSpaces, setIsLoadingSpaces] = useState(true);
+  const [spacesError, setSpacesError] = useState("");
 
   // Wake backend to avoid first-request cold start
   useEffect(() => {
@@ -59,6 +62,55 @@ export default function ThyrdSpacesHome() {
   const [tagSelect, setTagSelect] = useState("");
 
   const tagOptions = ["park", "views", "altar", "library", "community center", "garden"];
+
+  const normalizeSpace = (space) => ({
+    id: space.id,
+    name: space.name,
+    description: space.description,
+    tags: Array.isArray(space.tags)
+      ? space.tags
+      : String(space.tags || "")
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean),
+    image: space.photo_url || "",
+    location: space.location_data || "",
+  });
+
+  const fetchSpaces = useCallback(async () => {
+    setSpacesError("");
+    setIsLoadingSpaces(true);
+    try {
+      const res = await fetch(`${API_BASE}/third_space/`);
+      if (!res.ok) {
+        // If backend hasn't been updated/deployed yet, we'll surface a clear message.
+        if (res.status === 404) {
+          setSpaces([]);
+          setSpacesError(
+            "Spaces endpoint not found on the API. Please run the backend locally with the latest code or deploy the updated backend."
+          );
+          return;
+        }
+        const errText = await res.text();
+        throw new Error(errText || `Request failed with ${res.status}`);
+      }
+      const data = await res.json();
+      setSpaces((data.spaces || []).map(normalizeSpace));
+    } catch (err) {
+      console.error("Fetch spaces failed:", err);
+      setSpacesError(
+        err?.message?.includes("Failed to fetch")
+          ? "Could not load spaces (network/server issue). Please retry."
+          : err.message || "Unable to load spaces right now."
+      );
+    } finally {
+      setIsLoadingSpaces(false);
+    }
+  }, [API_BASE]);
+
+  useEffect(() => {
+    fetchSpaces();
+  }, [fetchSpaces]);
 
   const addTag = (tag) => {
     if (!tag) return;
@@ -120,6 +172,17 @@ export default function ThyrdSpacesHome() {
           throw new Error(errText || `Request failed with ${res.status}`);
         }
 
+        const data = await res.json();
+        const createdId = data?.id;
+        const newSpace = normalizeSpace({
+          id: createdId,
+          name: payload.name,
+          description: payload.description,
+          tags: payload.tags,
+          photo_url: payload.photo_url,
+          location_data: payload.location_data,
+        });
+        setSpaces((prev) => [newSpace, ...prev]);
         setSubmitSuccess("Space saved!");
         resetForm();
         setIsModalOpen(false);
@@ -138,45 +201,6 @@ export default function ThyrdSpacesHome() {
     submit();
   };
 
-  const mockResults = [
-    {
-      id: 1,
-      name: "Volunteer Park",
-      description: "This park is lovely, open to the public...",
-      category: "park",
-      views: 1234,
-      tags: ["park", "views"],
-      image: "",
-    },
-    {
-      id: 2,
-      name: "Altar at Udistrict",
-      description: "Cozy neighborhood Altar with great vibes...",
-      category: "altar",
-      views: 892,
-      tags: ["altar"],
-      image: "",
-    },
-    {
-      id: 3,
-      name: "Capitol Hill Library",
-      description: "Community library with study spaces...",
-      category: "library",
-      views: 567,
-      tags: ["library"],
-      image: "",
-    },
-    {
-      id: 4,
-      name: "Green Lake Park",
-      description: "Beautiful lakeside park for walking...",
-      category: "park",
-      views: 2341,
-      tags: ["park"],
-      image: "",
-    },
-  ];
-
   const handleSearch = () => {
     console.log("Searching for:", keyword, category);
   };
@@ -192,7 +216,7 @@ export default function ThyrdSpacesHome() {
           <h1 className="text-2xl sm:text-3xl font-bold text-[#1f1f1f] mb-2 sm:mb-3 leading-tight">
             Welcome to Thyrd Spaces
           </h1>
-          
+
           {/* Nav bae */}
           <nav className="flex items-center gap-6">
             <button className="text-[#2d2d2d] font-medium hover:underline">Home</button>
@@ -291,66 +315,76 @@ export default function ThyrdSpacesHome() {
           </div>
 
           <div className="space-y-4">
-            {mockResults.map((result) => (
-              <div
-                key={result.id}
-                role="button"
-                tabIndex={0}
-                onClick={() => router.push(`/space-details`)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    router.push(`/space-details`);
-                  }
-                }}
-                className="bg-white border border-gray-200 rounded-md p-3 shadow-sm cursor-pointer transition-transform transition-shadow duration-150 hover:-translate-y-[2px] hover:shadow-md"
-              >
-                <div className="flex items-start justify-between mb-2">
-                  <div>
-                    <h4 className="text-lg font-bold text-[#2d2d2d]">
-                      {result.name}
-                    </h4>
-                    <p className="text-sm text-[#4a4a4a] truncate max-w-[180px]">
-                      {result.description}
-                    </p>
-                  </div>
-                  <button className="text-[#2d2d2d]" aria-label="Favorite">
-                    <svg
-                      className="w-8 h-8"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                    </svg>
-                  </button>
-                </div>
-                <div className="flex gap-2 mb-2">
-                  {(result.tags || []).map((tag, idx) => (
-                    <span
-                      key={tag}
-                      className={`px-3 py-1 rounded-md text-xs border ${
-                        idx % 2 === 0
-                          ? "bg-[#f5e6e6] text-[#6b4444] border-[#6b4444]"
-                          : "bg-[#e6f5e6] text-[#446b44] border-[#446b44]"
-                      }`}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                {result.image ? (
-                  <div className="w-full h-52 bg-gray-200 rounded-md overflow-hidden">
-                    <img
-                      src={result.image}
-                      alt={result.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                ) : null}
+            {isLoadingSpaces ? (
+              <div className="text-sm text-[#4a4a4a]">Loading spaces...</div>
+            ) : spacesError ? (
+              <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded px-3 py-2">
+                {spacesError}
               </div>
-            ))}
+            ) : spaces.length === 0 ? (
+              <div className="text-sm text-[#4a4a4a]">No spaces yet. Add the first one!</div>
+            ) : (
+              spaces.map((result) => (
+                <div
+                  key={result.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => router.push(`/space-details?id=${result.id}`)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      router.push(`/space-details?id=${result.id}`);
+                    }
+                  }}
+                  className="bg-white border border-gray-200 rounded-md p-3 shadow-sm cursor-pointer transition-transform transition-shadow duration-150 hover:-translate-y-[2px] hover:shadow-md"
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <h4 className="text-lg font-bold text-[#2d2d2d]">
+                        {result.name}
+                      </h4>
+                      <p className="text-sm text-[#4a4a4a] truncate max-w-[180px]">
+                        {result.description}
+                      </p>
+                    </div>
+                    <button className="text-[#2d2d2d]" aria-label="Favorite">
+                      <svg
+                        className="w-8 h-8"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="flex gap-2 mb-2">
+                    {(result.tags || []).map((tag, idx) => (
+                      <span
+                        key={`${result.id}-${tag}`}
+                        className={`px-3 py-1 rounded-md text-xs border ${
+                          idx % 2 === 0
+                            ? "bg-[#f5e6e6] text-[#6b4444] border-[#6b4444]"
+                            : "bg-[#e6f5e6] text-[#446b44] border-[#446b44]"
+                        }`}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  {result.image ? (
+                    <div className="w-full h-52 bg-gray-200 rounded-md overflow-hidden">
+                      <img
+                        src={result.image}
+                        alt={result.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : null}
+                </div>
+              ))
+            )}
           </div>
 
           {/* Pagination */}
