@@ -45,21 +45,21 @@ export default function SiteHeader() {
 
           <nav className="p-6 space-y-6">
             <Link 
-            href="/pages" 
+            href="/" 
             className="block text-lg font-medium text-[#1f1f1f] py-3 px-4 rounded-lg hover:bg-[#b5c3a6] transition-colors"
             onClick={() => setIsMenuOpen(false)}
             >
             Home
             </Link>
             <Link
-              href="/pages/about"
+              href="/about"
               className="block text-lg font-medium text-[#1f1f1f] py-3 px-4 rounded-lg hover:bg-[#b5c3a6] transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               About
             </Link>
             <Link 
-              href="pages/viewprofilestatic" 
+              href="/view-profile" 
               className="block text-lg font-medium text-[#1f1f1f] py-3 px-4 rounded-lg hover:bg-[#b5c3a6] transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
@@ -69,7 +69,7 @@ export default function SiteHeader() {
             <div className="border-t border-[#b5c3a6] my-4"></div>
             
             <Link 
-              href="pages/login" 
+              href="/login" 
               className="block text-lg font-bold text-[#1f1f1f] py-3 px-4 rounded-lg bg-[#b5c3a6] hover:bg-[#a8b89a] text-center transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >

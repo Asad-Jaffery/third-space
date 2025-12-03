@@ -103,7 +103,7 @@ export default function CreateAccount() {
 
       setTimeout(() => {
         // After sign-up, send the user to Home where they can continue browsing.
-        window.location.href = "/pages";
+        window.location.href = "/";
       }, 2000);
 
     } catch (error) {
@@ -215,7 +215,7 @@ export default function CreateAccount() {
 
             <div className="text-center text-sm text-[#4a4a4a] mt-4">
               Already have an account?{" "}
-              <a href="/pages/login" className="text-[#2d2d2d] font-semibold underline hover:no-underline">
+              <a href="/login" className="text-[#2d2d2d] font-semibold underline hover:no-underline">
                 Log In
               </a>
             </div>

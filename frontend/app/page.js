@@ -2,8 +2,8 @@
 
 import { Suspense, useEffect, useState } from "react";
 import Home from "./Home";
-import Login from "./Login";
-import CreateAccount from "./CreateAccount";
+import Login from "./login/Login";
+import CreateAccount from "./createaccount/CreateAccount";
 
 export default function PagesRoute() {
   const [isReady, setIsReady] = useState(false);
