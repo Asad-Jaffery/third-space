@@ -102,7 +102,7 @@ export default function LogIn() {
         localStorage.setItem("username", userRecord.username);
       }
 
-      window.location.href = "/pages";
+      window.location.href = "/";
 
     } catch (error) {
       console.error("Login failed:", error);
@@ -171,7 +171,7 @@ export default function LogIn() {
             <div className="text-center text-sm text-[#4a4a4a] pt-2 border-t border-gray-300">
               Don't have an account?{" "}
               <Link
-                href="/pages/createaccount"
+                href="/createaccount"
                 className="text-[#2d2d2d] font-semibold underline hover:no-underline"
               >
                 Sign up for Account

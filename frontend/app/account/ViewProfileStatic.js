@@ -37,13 +37,13 @@ export default function ViewProfile() {
     try {
       const rawUser = window.localStorage.getItem("user");
       if (!rawUser) {
-        router.push("/pages"); // send to auth landing
+        router.push("/"); // send to auth landing
         return;
       }
       const parsedUser = JSON.parse(rawUser);
       if (!parsedUser || (!parsedUser.username && !parsedUser.email)) {
         window.localStorage.removeItem("user");
-        router.push("/pages");
+        router.push("/");
         return;
       }
       setUserData({
@@ -58,7 +58,7 @@ export default function ViewProfile() {
         setSavedSpaces(Array.isArray(parsedSaved) ? parsedSaved : []);
       }
     } catch {
-      router.push("/pages");
+      router.push("/");
     } finally {
       setIsReady(true);
     }
@@ -115,7 +115,7 @@ export default function ViewProfile() {
                   window.localStorage.removeItem("username");
                   window.localStorage.removeItem("savedSpaces");
                 }
-                router.push("/pages");
+                router.push("/");
               }}
             >
               Log Out

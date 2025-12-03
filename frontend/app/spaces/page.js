@@ -1,6 +1,6 @@
 "use client";
 
-import SpaceDetails from "../pages/SpaceDetails";
+import SpaceDetails from "./SpaceDetails";
 
 export default function SpaceDetailsRoute() {
   return <SpaceDetails />;

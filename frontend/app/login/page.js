@@ -1,6 +1,6 @@
 "use client";
 
-import Login from "../Login.js";
+import Login from "./Login";
 
 export default function ViewProfilePage() {
   return <Login />;

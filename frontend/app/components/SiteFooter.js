@@ -9,13 +9,13 @@ export default function SiteFooter() {
       <div className="max-w-4xl mx-auto px-6 py-4">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex gap-6 text-sm">
-            <Link href="/pages" className="hover:underline">
+            <Link href="/" className="hover:underline">
               Home
             </Link>
             <span>|</span>
-            <Link href="/" className="hover:underline">About</Link>
+            <Link href="/about" className="hover:underline">About</Link>
             <span>|</span>
-            <Link href="/pages/viewprofilestatic" className="hover:underline">
+            <Link href="/view-profile" className="hover:underline">
               Profile
             </Link>
           </div>
