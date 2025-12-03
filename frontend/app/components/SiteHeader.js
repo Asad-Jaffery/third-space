@@ -1,10 +1,53 @@
 "use client";
-import { useState } from 'react';
-
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from "next/link";
 
 export default function SiteHeader() {
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const checkAuth = () => {
+    if (typeof window === "undefined") return;
+    try {
+      const storedUser = window.localStorage.getItem("user");
+      if (!storedUser) {
+        setIsLoggedIn(false);
+        return;
+      }
+      try {
+        const parsed = JSON.parse(storedUser);
+        const valid = parsed && (parsed.id || parsed.email || parsed.username);
+        setIsLoggedIn(valid);
+      } catch {
+        setIsLoggedIn(false);
+      }
+    } catch {
+      setIsLoggedIn(false);
+    }
+  };
+
+  useEffect(() => {
+    checkAuth();
+    // Check auth when menu opens
+    if (isMenuOpen) {
+      checkAuth();
+    }
+  }, [isMenuOpen]);
+
+  const handleLogout = () => {
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem("user");
+      window.localStorage.removeItem("userId");
+      window.localStorage.removeItem("userEmail");
+      window.localStorage.removeItem("username");
+      window.localStorage.removeItem("savedSpaces");
+    }
+    setIsLoggedIn(false);
+    setIsMenuOpen(false);
+    router.push("/");
+  };
 
   return (
     <header className="bg-[#c8d5b9] px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between border-b border-[#b5c3a6] sticky top-0 z-40">
@@ -68,13 +111,22 @@ export default function SiteHeader() {
             
             <div className="border-t border-[#b5c3a6] my-4"></div>
             
-            <Link 
-              href="/login" 
-              className="block text-lg font-bold text-[#1f1f1f] py-3 px-4 rounded-lg bg-[#b5c3a6] hover:bg-[#a8b89a] text-center transition-colors"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Log in!
-            </Link>
+            {isLoggedIn ? (
+              <button
+                onClick={handleLogout}
+                className="block w-full text-lg font-bold text-[#1f1f1f] py-3 px-4 rounded-lg bg-[#b5c3a6] hover:bg-[#a8b89a] text-center transition-colors"
+              >
+                Log out
+              </button>
+            ) : (
+              <Link 
+                href="/login" 
+                className="block text-lg font-bold text-[#1f1f1f] py-3 px-4 rounded-lg bg-[#b5c3a6] hover:bg-[#a8b89a] text-center transition-colors"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Log in!
+              </Link>
+            )}
           </nav>
         </div>
       )}
