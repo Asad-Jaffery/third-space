@@ -13,10 +13,11 @@ const getApiBase = () => {
   return `https://${raw.replace(/^\/+/, "")}`;
 };
 
-export default function SpaceDetails() {
+export default function SpaceDetails({ spaceId: spaceIdProp }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const spaceId = searchParams.get('id');
+  // Support both props (from dynamic route) and query params (for backward compatibility)
+  const spaceId = spaceIdProp || searchParams.get('id');
   const API_BASE = getApiBase();
   const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
   const isSupabase = API_BASE.includes("supabase.co");
