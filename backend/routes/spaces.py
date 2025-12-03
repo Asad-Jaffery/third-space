@@ -14,12 +14,12 @@ class SpaceCreate(BaseModel):
     location_data: str  # Link to google maps for now
 
 
-@router.post("/new")
-    def create_space(space: SpaceCreate):
-        try:
-            with engine.connect() as conn:
-                query = text(
-                    """
+@router.post("/new")  #
+def create_space(space: SpaceCreate):
+    try:
+        with engine.connect() as conn:
+            query = text(
+                """
                 INSERT INTO spaces (name, description, tags, photo_url, location_data) 
                 VALUES (:name, :desc, :tags, :url, :loc)
                 RETURNING id
@@ -30,7 +30,7 @@ class SpaceCreate(BaseModel):
                 "name": space.name,
                 "desc": space.description,
                 "tags": space.tags,
-                "url": space.photo_url,
+                "url": space.photo_url,  #
                 "loc": space.location_data,
             }
             result = conn.execute(query, params)
@@ -51,9 +51,9 @@ def list_spaces():
         with engine.connect() as conn:
             query = text(
                 """
-                SELECT id, name, description, tags, photo_url, location_data, created_at
+                SELECT id, name, description, tags, photo_url, location_data
                 FROM spaces
-                ORDER BY created_at DESC
+                ORDER BY id DESC
                 """
             )
             result = conn.execute(query)
@@ -72,7 +72,7 @@ def get_space(space_id: int):
         with engine.connect() as conn:
             query = text(
                 """
-                SELECT id, name, description, tags, photo_url, location_data, created_at
+                SELECT id, name, description, tags, photo_url, location_data
                 FROM spaces
                 WHERE id = :space_id
                 """
