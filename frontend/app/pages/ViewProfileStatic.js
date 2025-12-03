@@ -12,25 +12,8 @@ export default function ViewProfile() {
   const [savedSpaces, setSavedSpaces] = useState([]);
   const [userData, setUserData] = useState(null);
   const [isReady, setIsReady] = useState(false);
-
-  const userReviews = [
-    {
-      id: 1,
-      spaceName: "Volunteer Park",
-      title: "Great Trails!",
-      text: "i love how the trails are nicely paved; they really minimize the chance for me to trip and fall",
-      date: "11/19/2025",
-      rating: 5,
-    },
-    {
-      id: 2,
-      spaceName: "Green Lake Park",
-      title: "Beautiful Views",
-      text: "Perfect spot for a peaceful walk around the lake",
-      date: "11/15/2025",
-      rating: 4,
-    },
-  ];
+  const [userReviews, setUserReviews] = useState([]);
+  const [userReflections, setUserReflections] = useState([]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -56,6 +39,17 @@ export default function ViewProfile() {
       if (rawSaved) {
         const parsedSaved = JSON.parse(rawSaved);
         setSavedSpaces(Array.isArray(parsedSaved) ? parsedSaved : []);
+      }
+
+      const rawReviews = window.localStorage.getItem("userReviews");
+      if (rawReviews) {
+        const parsed = JSON.parse(rawReviews);
+        setUserReviews(Array.isArray(parsed) ? parsed : []);
+      }
+      const rawReflections = window.localStorage.getItem("userReflections");
+      if (rawReflections) {
+        const parsed = JSON.parse(rawReflections);
+        setUserReflections(Array.isArray(parsed) ? parsed : []);
       }
     } catch {
       router.push("/pages");
@@ -133,7 +127,7 @@ export default function ViewProfile() {
             <p className="text-sm text-[#6a6a6a]">Reviews</p>
           </div>
           <div>
-            <p className="text-3xl font-bold text-[#2d2d2d]">0</p>
+            <p className="text-3xl font-bold text-[#2d2d2d]">{userReflections.length}</p>
             <p className="text-sm text-[#6a6a6a]">Reflections</p>
           </div>
         </div>
@@ -216,39 +210,58 @@ export default function ViewProfile() {
           {activeTab === "reviews" && (
             <div className="space-y-4">
               <h3 className="text-2xl font-bold text-[#2d2d2d] mb-4">My Reviews</h3>
-              {userReviews.map((review) => (
-                <div key={review.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <p className="text-sm text-[#6a6a6a] mb-1">{review.spaceName}</p>
-                      <h4 className="text-lg font-bold text-[#2d2d2d]">{review.title}</h4>
+              {userReviews.length === 0 ? (
+                <div className="text-sm text-[#6a6a6a]">No reviews yet.</div>
+              ) : (
+                userReviews.map((review) => (
+                  <div key={review.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <p className="text-sm text-[#6a6a6a] mb-1">{review.spaceName || "Unknown space"}</p>
+                        <h4 className="text-lg font-bold text-[#2d2d2d]">{review.title}</h4>
+                      </div>
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <svg 
+                            key={star} 
+                            className={`w-4 h-4 ${star <= (review.rating || 0) ? "text-[#2d2d2d]" : "text-gray-300"}`} 
+                            viewBox="0 0 24 24" 
+                            fill={star <= (review.rating || 0) ? "currentColor" : "none"}
+                            stroke="currentColor" 
+                            strokeWidth="2"
+                          >
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                          </svg>
+                        ))}
+                      </div>
                     </div>
-                    <div className="flex gap-1">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <svg 
-                          key={star} 
-                          className={`w-4 h-4 ${star <= review.rating ? "text-[#2d2d2d]" : "text-gray-300"}`} 
-                          viewBox="0 0 24 24" 
-                          fill={star <= review.rating ? "currentColor" : "none"}
-                          stroke="currentColor" 
-                          strokeWidth="2"
-                        >
-                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                        </svg>
-                      ))}
-                    </div>
+                    <p className="text-sm text-[#4a4a4a] mb-3 leading-relaxed">{review.text}</p>
+                    <p className="text-xs text-[#6a6a6a]">{review.date}</p>
                   </div>
-                  <p className="text-sm text-[#4a4a4a] mb-3 leading-relaxed">{review.text}</p>
-                  <p className="text-xs text-[#6a6a6a]">{review.date}</p>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           )}
 
           {activeTab === "reflections" && (
-            <div className="text-center py-12">
-              <p className="text-lg text-[#6a6a6a]">No reflections yet</p>
-              <p className="text-sm text-[#6a6a6a] mt-2">Start reflecting on your third space experiences!</p>
+            <div className="space-y-4">
+              <h3 className="text-2xl font-bold text-[#2d2d2d] mb-4">My Reflections</h3>
+              {userReflections.length === 0 ? (
+                <div className="text-sm text-[#6a6a6a]">No reflections yet.</div>
+              ) : (
+                userReflections.map((reflection) => (
+                  <div key={reflection.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <p className="text-sm text-[#6a6a6a] mb-1">{reflection.spaceName || "Unknown space"}</p>
+                        <h4 className="text-lg font-bold text-[#2d2d2d]">{reflection.title}</h4>
+                      </div>
+                    </div>
+                    <p className="text-sm text-[#4a4a4a] mb-3 leading-relaxed">{reflection.text}</p>
+                    <p className="text-xs text-[#6a6a6a]">{reflection.date}</p>
+                  </div>
+                ))
+              )}
             </div>
           )}
         </div>
