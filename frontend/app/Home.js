@@ -466,11 +466,11 @@ export default function ThyrdSpacesHome() {
                     key={result.id}
                     role="button"
                     tabIndex={0}
-                    onClick={() => router.push(`/space-details?id=${result.id}`)}
+                    onClick={() => router.push(`/spaces/${result.id}`)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
                         e.preventDefault();
-                        router.push(`/space-details?id=${result.id}`);
+                        router.push(`/spaces/${result.id}`);
                       }
                     }}
                     className="bg-white border border-gray-200 rounded-md p-3 shadow-sm cursor-pointer transition-transform transition-shadow duration-150 hover:-translate-y-[2px] hover:shadow-md"
