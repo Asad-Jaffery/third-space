@@ -291,6 +291,7 @@ export default function ViewProfile() {
           </button>
         </div>
       </main>
+      
       <SiteFooter/>
     </div>
     );
