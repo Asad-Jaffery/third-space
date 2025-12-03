@@ -147,7 +147,7 @@ export default function LogIn() {
                   onChange={(e) => setEmail(e.target.value)}
                   onKeyPress={(e) => e.key === "Enter" && handleSignIn()}
                   placeholder="Enter your email"
-                  className={`w-full px-4 py-2 border rounded bg-white ${
+                  className={`w-full px-4 py-2 border rounded bg-white text-[#2d2d2d] ${
                     emailError ? "border-red-500" : "border-gray-300"
                   }`}
                 />
