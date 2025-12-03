@@ -277,8 +277,8 @@ export default function ViewProfile() {
             Next
           </button>
         </div>
-
       </main>
+      <SiteFooter/>
     </div>
     );
 }
