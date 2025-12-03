@@ -146,7 +146,7 @@ export default function CreateAccount() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
-                  className={`w-full px-4 py-2 border rounded bg-white ${
+                  className={`w-full px-4 py-2 border rounded bg-white text-[#2d2d2d] ${
                     emailError ? "border-red-500" : "border-gray-300"
                   }`}
                 />
@@ -169,7 +169,7 @@ export default function CreateAccount() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="Choose a username"
-                  className={`w-full px-4 py-2 border rounded bg-white ${
+                  className={`w-full px-4 py-2 border rounded bg-white text-[#2d2d2d] ${
                     usernameError ? "border-red-500" : "border-gray-300"
                   }`}
                 />
@@ -192,7 +192,7 @@ export default function CreateAccount() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Create a password"
-                  className={`w-full px-4 py-2 border rounded bg-white ${
+                  className={`w-full px-4 py-2 border rounded bg-white text-[#2d2d2d] ${
                     passwordError ? "border-red-500" : "border-gray-300"
                   }`}
                 />

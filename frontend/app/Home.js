@@ -388,9 +388,9 @@ export default function ThyrdSpacesHome() {
                     placeholder="Value"
                     value={keyword}
                     onChange={(e) => setKeyword(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white pr-10"
+                    className="w-full px-4 py-2 border border-gray-300 rounded text-[#2d2d2d] bg-white pr-10"
                   />
-                  <span className="absolute inset-y-0 right-3 flex items-center text-gray-500">
+                  <span className="absolute inset-y-0 right-3 flex items-center">
                     🔍
                   </span>
                 </div>
@@ -404,7 +404,7 @@ export default function ThyrdSpacesHome() {
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white appearance-none pr-8"
+                    className="w-full px-4 py-2 border border-gray-300 rounded bg-white text-[#2d2d2d] appearance-none pr-8"
                   >
                     <option value="">Value</option>
                     {categories.map((cat) => (
@@ -413,7 +413,7 @@ export default function ThyrdSpacesHome() {
                       </option>
                     ))}
                   </select>
-                  <span className="absolute inset-y-0 right-3 flex items-center text-gray-500 pointer-events-none">
+                  <span className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
                     ▾
                   </span>
                 </div>
