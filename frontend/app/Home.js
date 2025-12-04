@@ -356,7 +356,7 @@ export default function ThyrdSpacesHome() {
             Welcome to Thyrd Spaces
           </h1>
 
-          <p className="text-sm sm:text-base text-[#FFFFF] mb-4 sm:mb-5 leading-relaxed">
+          <p className="text-sm sm:text-base text-[#FFFFFF] mb-4 sm:mb-5 leading-relaxed">
             Thyrd spaces is a website that facilitates community-spread findings
             of third spaces!
             <br />

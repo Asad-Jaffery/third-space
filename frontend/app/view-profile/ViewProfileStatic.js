@@ -81,10 +81,10 @@ export default function ViewProfile() {
         <div className="bg-[#023020] px-4 py-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6 mb-6">
             <div className="min-w-0">
-              <h2 className="text-3xl sm:text-4xl font-bold text-[#FFFFF] mb-2 truncate">
+              <h2 className="text-3xl sm:text-4xl font-bold text-[#FFFFFF] mb-2 truncate">
                 {userData?.username}
               </h2>
-              <p className="text-sm text-[#FFFFF] truncate">
+              <p className="text-sm text-[#FFFFFF] truncate">
                 {userData?.email} • {userData?.joinDate}
               </p>
             </div>
