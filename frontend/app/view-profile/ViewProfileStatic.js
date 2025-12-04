@@ -77,15 +77,14 @@ export default function ViewProfile() {
   return (
     <div className="min-h-screen bg-[#3a3a3a]">
       <SiteHeader />
-
-      <main className="bg-white max-w-5xl mx-auto min-h-screen">
-        <div className="bg-[#d4d4d4] px-4 sm:px-6 py-6 sm:py-8">
+      <main className="bg-white mx-auto min-h-screen pl-5 pr-5">
+        <div className="bg-[#023020] px-4 py-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6 mb-6">
             <div className="min-w-0">
-              <h2 className="text-3xl sm:text-4xl font-bold text-[#2d2d2d] mb-2 truncate">
+              <h2 className="text-3xl sm:text-4xl font-bold text-[#FFFFF] mb-2 truncate">
                 {userData?.username}
               </h2>
-              <p className="text-sm text-[#4a4a4a] truncate">
+              <p className="text-sm text-[#FFFFF] truncate">
                 {userData?.email} • {userData?.joinDate}
               </p>
             </div>
@@ -100,7 +99,7 @@ export default function ViewProfile() {
           
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <button
-              className="w-full sm:w-auto px-5 sm:px-6 py-2 sm:py-3 bg-[#2d2d2d] text-white rounded hover:bg-[#1a1a1a]"
+              className="w-full sm:w-auto px-5 sm:px-6 py-2 sm:py-3 bg-[#c8d5b9] text-black rounded hover:bg-[#FFFFFF]"
               onClick={() => {
                 if (typeof window !== "undefined") {
                   window.localStorage.removeItem("user");
@@ -266,32 +265,33 @@ export default function ViewProfile() {
           )}
         </div>
 
-        <div className="px-4 sm:px-6 py-6 flex items-center justify-center gap-2 border-t border-gray-200">
+        <div className="px-4 sm:px-6 py-6 flex items-center justify-center gap-2 border-t border-black">
           <button 
             onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-            className="px-4 py-2 bg-white border border-gray-300 rounded hover:bg-gray-50"
+            className="px-4 py-2 bg-[#a8b89a] border border-black-300 rounded hover:bg-gray-50"
           >
             Previous
           </button>
-          <button className="w-10 h-10 flex items-center justify-center bg-[#2d2d2d] text-white rounded">
+          <button className="w-10 h-10 flex items-center justify-center bg-black text-white rounded">
             {currentPage}
           </button>
-          <button className="w-10 h-10 flex items-center justify-center bg-white border border-gray-300 rounded hover:bg-gray-50">
+          <button className="w-10 h-10 flex items-center justify-center bg-[#a8b89a] border border-gray-300 rounded hover:bg-gray-50">
             2
           </button>
           <span>...</span>
-          <button className="w-10 h-10 flex items-center justify-center bg-white border border-gray-300 rounded hover:bg-gray-50">
+          <button className="w-10 h-10 flex items-center justify-center bg-[#a8b89a] border border-gray-300 rounded hover:bg-gray-50">
             5
           </button>
           <button 
             onClick={() => setCurrentPage(Math.min(5, currentPage + 1))}
-            className="px-4 py-2 bg-white border border-gray-300 rounded hover:bg-gray-50"
+            className="px-4 py-2 bg-[#a8b89a] border border-gray-300 rounded hover:bg-gray-50"
           >
             Next
           </button>
         </div>
-
       </main>
+
+      <SiteFooter/>
     </div>
     );
 }

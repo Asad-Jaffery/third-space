@@ -175,7 +175,7 @@ export default function SpaceDetails({ spaceId: spaceIdProp }) {
       <SiteHeader />
 
       {/* Main Content */}
-      <main className="bg-white max-w-md mx-auto min-h-screen pt-16 pb-24">
+      <main className="bg-white pt-16 pb-24 pl-5 pr-5">
         <div className="px-4 py-3">
           <button
             onClick={() => router.back()}
