@@ -351,12 +351,12 @@ export default function ThyrdSpacesHome() {
       {/* Main Content */}
       <main className="bg-white max-w-md mx-auto min-h-screen px-4 pt-16 pb-24 shadow-sm border border-gray-200">
         {/* intro Section */}
-        <div className="bg-[#d4d4d4] px-4 sm:px-5 py-6 sm:py-8 text-center rounded-lg shadow-sm">
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#1f1f1f] mb-2 sm:mb-3 leading-tight">
+        <div className="bg-[#023020] px-4 sm:px-5 py-6 sm:py-8 text-center rounded-lg shadow-sm">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#c8d5b9] mb-2 sm:mb-3 leading-tight">
             Welcome to Thyrd Spaces
           </h1>
 
-          <p className="text-sm sm:text-base text-[#2f2f2f] mb-4 sm:mb-5 leading-relaxed">
+          <p className="text-sm sm:text-base text-[#FFFFF] mb-4 sm:mb-5 leading-relaxed">
             Thyrd spaces is a website that facilitates community-spread findings
             of third spaces!
             <br />
@@ -364,14 +364,19 @@ export default function ThyrdSpacesHome() {
             initiative!
           </p>
           <div className="flex justify-center">
-            <button className="w-full sm:w-auto px-6 py-3 bg-[#2d2d2d] text-white rounded-md text-sm sm:text-base">
-              About Thyrd Spaces
-            </button>
+            <nav>
+              <button 
+              className="w-full sm:w-auto px-6 py-3 bg-[#c8d5b9] text-black rounded-md text-sm sm:text-base"
+              onClick={() => router.push('/about')}
+              >
+                About Thyrd Spaces
+              </button>
+            </nav>
           </div>
         </div>
 
         {/* Search Section */}
-        <div className="px-0 py-6 bg-[#d4d4d4] mt-4 rounded-lg shadow-sm">
+        <div className="px-0 py-6 bg-[#c8d5b9] mt-4 rounded-lg shadow-sm">
           <h3 className="text-xl sm:text-2xl font-bold text-[#2d2d2d] mb-4 px-4">
             Search for Third Spaces
           </h3>
