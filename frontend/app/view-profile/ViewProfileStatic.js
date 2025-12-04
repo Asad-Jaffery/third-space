@@ -78,8 +78,8 @@ export default function ViewProfile() {
     <div className="min-h-screen bg-[#3a3a3a]">
       <SiteHeader />
 
-      <main className="bg-white max-w-5xl mx-auto min-h-screen">
-        <div className="bg-[#d4d4d4] px-4 sm:px-6 py-6 sm:py-8">
+      <main className="bg-white mx-auto min-h-screen pl-5 pr-5">
+        <div className="bg-[#d4d4d4] px-4 py-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6 mb-6">
             <div className="min-w-0">
               <h2 className="text-3xl sm:text-4xl font-bold text-[#2d2d2d] mb-2 truncate">
@@ -291,7 +291,7 @@ export default function ViewProfile() {
           </button>
         </div>
       </main>
-      
+
       <SiteFooter/>
     </div>
     );

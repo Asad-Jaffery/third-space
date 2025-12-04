@@ -123,7 +123,7 @@ export default function LogIn() {
     <div className="min-h-screen bg-[#3a3a3a]">
       <SiteHeader />
 
-      <main className="bg-white max-w-sm mx-auto min-h-screen px-4 py-6">
+      <main className="bg-white pl-5 pr-5 px-4 py-6 h-100 fill-vh">
         <div className="bg-[#d4d4d4] rounded-lg p-5">
           <h2 className="text-2xl font-bold text-[#2d2d2d] mb-4 text-center">
             Log In to Thyrd Spaces
