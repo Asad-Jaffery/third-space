@@ -1,7 +1,12 @@
-"use client";
+'use client';
 
-import SpaceDetails from "../spaces/SpaceDetails";
+import { Suspense } from 'react';
+import SpaceDetails from '../spaces/SpaceDetails';
 
 export default function SpaceDetailsAliasRoute() {
-  return <SpaceDetails />;
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SpaceDetails />
+    </Suspense>
+  );
 }
