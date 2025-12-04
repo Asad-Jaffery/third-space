@@ -7,10 +7,8 @@ export default function About() {
   return (
     <div className="min-h-screen bg-[#3a3a3a]">
       <SiteHeader />
-
-      <main className="bg-white max-w-4xl mx-auto min-h-screen px-6 py-8">
-        <div className="bg-[#023020] rounded-lg px-8 py-10 mb-8 text-center"> 
-        {/* Dark Green */}
+      <main className="bg-white pl-5 pr-5 px-6 py-8">
+        <div className="bg-[#023020] rounded-lg px-8 py-10 mb-8 text-center">
           <h1 className="text-4xl font-bold text-[#c8d5b9] mb-4">
             {/* Sage Green */}
             About Thyrd Spaces

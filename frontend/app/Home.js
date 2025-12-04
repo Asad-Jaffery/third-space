@@ -349,7 +349,7 @@ export default function ThyrdSpacesHome() {
       <SiteHeader />
 
       {/* Main Content */}
-      <main className="bg-white max-w-md mx-auto min-h-screen px-4 pt-16 pb-24 shadow-sm border border-gray-200">
+      <main className="bg-white pl-5 pr-5 px-4 pt-16 pb-24 shadow-sm border border-gray-200">
         {/* intro Section */}
         <div className="bg-[#023020] px-4 sm:px-5 py-6 sm:py-8 text-center rounded-lg shadow-sm">
           <h1 className="text-2xl sm:text-3xl font-bold text-[#c8d5b9] mb-2 sm:mb-3 leading-tight">
